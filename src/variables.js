@@ -1,0 +1,1 @@
+export const QUANTITY_ALL_FILMS = 100000;
