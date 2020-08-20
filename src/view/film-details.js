@@ -1,6 +1,7 @@
 import {MONTHS} from '../constants.js';
+import {createElement} from '../utils/render.js';
 
-export const createFilmDetailsTemplate = (film) => {
+const createFilmDetailsTemplate = (film) => {
   let genresFilm = ``;
   for (let i = 0; i < film.genre.length; i++) {
     genresFilm += `<span class="film-details__genre">${film.genre[i]}</span>`;
@@ -148,3 +149,26 @@ export const createFilmDetailsTemplate = (film) => {
     </section>`
   );
 };
+
+export default class FilmDetails {
+  constructor(film) {
+    this._element = null;
+    this._film = film;
+  }
+
+  _getTemplate() {
+    return createFilmDetailsTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this._getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

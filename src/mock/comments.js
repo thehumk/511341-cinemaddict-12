@@ -1,4 +1,4 @@
-import {getRandomNumber} from '../util.js';
+import {getRandomNumber} from '../utils/util.js';
 
 const MIN_COMMENTS_COUNT = 0;
 const MAX_COMMENTS_COUNT = 5;

@@ -1,4 +1,6 @@
-export const createFilmsTemplate = () => {
+import {createElement} from '../utils/render.js';
+
+const createFilmsTemplate = () => {
   return (
     `<section class="films">
       <section class="films-list">
@@ -24,3 +26,25 @@ export const createFilmsTemplate = () => {
     </section>`
   );
 };
+
+export default class FilmsContainer {
+  constructor() {
+    this._element = null;
+  }
+
+  _getTemplate() {
+    return createFilmsTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this._getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
