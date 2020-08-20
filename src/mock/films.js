@@ -1,4 +1,4 @@
-import {getRandomNumber, getRandomBoolean} from '../util.js';
+import {getRandomNumber, getRandomBoolean} from '../utils/util.js';
 import {createRandomComments} from './comments.js';
 
 const QANTITY_FILMS = 20;

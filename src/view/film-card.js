@@ -1,4 +1,6 @@
-export const createFilmCardTemplate = (film) => {
+import {createElement} from '../utils/render.js';
+
+const createFilmCardTemplate = (film) => {
   const shortDescription = film.description.length > 140 ? film.description.slice(0, 140) + `...` : film.description;
 
   const duration = (film.runtime / 60 | 0) + `h ` + (film.runtime % 60) + `m`;
@@ -23,3 +25,26 @@ export const createFilmCardTemplate = (film) => {
     </article>`
   );
 };
+
+export default class FilmCard {
+  constructor(film) {
+    this._element = null;
+    this._film = film;
+  }
+
+  _getTemplate() {
+    return createFilmCardTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this._getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
