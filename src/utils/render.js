@@ -14,6 +14,7 @@ export const render = (container, component, place = `beforeend`) => {
       break;
     case `afterend`:
       container.after(component.getElement());
+      break;
   }
 };
 
