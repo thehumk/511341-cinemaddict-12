@@ -1,5 +1,5 @@
 import {MONTHS} from '../constants.js';
-import {createElement} from '../utils/render.js';
+import Abstract from './abstract.js';
 
 const createFilmDetailsTemplate = (film) => {
   let genresFilm = ``;
@@ -10,28 +10,6 @@ const createFilmDetailsTemplate = (film) => {
   const genreTitle = film.genre.length <= 1 ? `Genre` : `Genres`;
 
   const duration = (film.runtime / 60 | 0) + `h ` + film.runtime % 60 + `m`;
-
-  const createCommentsTemplate = () => {
-    let comments = ``;
-
-    for (let i = 0; i < film.comments.length; i++) {
-      comments += `<li class="film-details__comment">
-        <span class="film-details__comment-emoji">
-          <img src="./images/emoji/${film.comments[i].emotion}.png" width="55" height="55" alt="emoji-smile">
-        </span>
-        <div>
-          <p class="film-details__comment-text">${film.comments[i].comment}</p>
-          <p class="film-details__comment-info">
-            <span class="film-details__comment-author">${film.comments[i].author}</span>
-            <span class="film-details__comment-day">${film.comments[i].date.getFullYear() + `/` + film.comments[i].date.getMonth() + `/` + film.comments[i].date.getDate() + ` ` + film.comments[i].date.getHours() + `:` + film.comments[i].date.getMinutes()}</span>
-            <button class="film-details__comment-delete">Delete</button>
-          </p>
-        </div>
-      </li>`;
-    }
-
-    return comments;
-  };
 
   return (
     `<section class="film-details">
@@ -66,11 +44,11 @@ const createFilmDetailsTemplate = (film) => {
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Writers</td>
-                  <td class="film-details__cell">${film.writes}</td>
+                  <td class="film-details__cell">${film.writes.join(`, `)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Actors</td>
-                  <td class="film-details__cell">${film.actors}</td>
+                  <td class="film-details__cell">${film.actors.join(`, `)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Release Date</td>
@@ -111,7 +89,7 @@ const createFilmDetailsTemplate = (film) => {
             <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${film.comments.length}</span></h3>
 
             <ul class="film-details__comments-list">
-              ${createCommentsTemplate()}
+              
             </ul>
 
             <div class="film-details__new-comment">
@@ -150,25 +128,24 @@ const createFilmDetailsTemplate = (film) => {
   );
 };
 
-export default class FilmDetails {
+export default class FilmDetails extends Abstract {
   constructor(film) {
-    this._element = null;
+    super();
     this._film = film;
+    this._clickHandler = this._clickHandler.bind(this);
   }
 
   _getTemplate() {
     return createFilmDetailsTemplate(this._film);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this._getTemplate());
-    }
-
-    return this._element;
+  _clickHandler(evt) {
+    evt.preventDefault();
+    this._callback.clickClosePopup();
   }
 
-  removeElement() {
-    this._element = null;
+  setClickHandler(callback) {
+    this._callback.clickClosePopup = callback;
+    this.getElement().querySelector(`.film-details__close-btn`).addEventListener(`click`, this._clickHandler);
   }
 }

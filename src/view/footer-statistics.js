@@ -1,4 +1,4 @@
-import {createElement} from '../utils/render.js';
+import Abstract from './abstract.js';
 
 const createFooterStatisticsTemplate = (quantityFilms) => {
   return (
@@ -6,25 +6,13 @@ const createFooterStatisticsTemplate = (quantityFilms) => {
   );
 };
 
-export default class FooterStatistics {
+export default class FooterStatistics extends Abstract {
   constructor(quantityFilms) {
-    this._element = null;
+    super();
     this._quantityFilms = quantityFilms;
   }
 
   _getTemplate() {
     return createFooterStatisticsTemplate(this._quantityFilms);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this._getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
