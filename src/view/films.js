@@ -1,4 +1,4 @@
-import {createElement} from '../utils/render.js';
+import Abstract from './abstract.js';
 
 const createFilmsTemplate = () => {
   return (
@@ -8,8 +8,6 @@ const createFilmsTemplate = () => {
 
         <div class="films-list__container">
         </div>
-
-        <button class="films-list__show-more">Show more</button>
       </section>
       <section class="films-list--extra">
         <h2 class="films-list__title">Top rated</h2>
@@ -27,24 +25,8 @@ const createFilmsTemplate = () => {
   );
 };
 
-export default class FilmsContainer {
-  constructor() {
-    this._element = null;
-  }
-
+export default class FilmsContainer extends Abstract {
   _getTemplate() {
     return createFilmsTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this._getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

@@ -1,4 +1,4 @@
-import {createElement} from '../utils/render.js';
+import Abstract from './abstract.js';
 
 const createProfileTemplate = (profile) => {
   return (
@@ -9,25 +9,13 @@ const createProfileTemplate = (profile) => {
   );
 };
 
-export default class Profile {
+export default class Profile extends Abstract {
   constructor(profile) {
-    this._element = null;
+    super();
     this._profile = profile;
   }
 
   _getTemplate() {
     return createProfileTemplate(this._profile);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this._getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
