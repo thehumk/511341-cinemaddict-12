@@ -1,7 +1,7 @@
 import {getRandomNumber, getRandomBoolean} from '../utils/util.js';
 import {createRandomComments} from './comments.js';
 
-const QANTITY_FILMS = 20;
+export const QANTITY_FILMS = 20;
 const MIN_LENGTH_DESCRIPTION = 1;
 const MAX_LENGTH_DESCRIPTION = 5;
 
