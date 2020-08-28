@@ -1,27 +1,31 @@
-import {SortType} from '../variables.js';
+import {QuantityFilms, SortType} from '../variables.js';
 import SortingView from '../view/sorting.js';
-import FilmsContainerView from '../view/films.js';
+import FilmsContainerView from '../view/films-container.js';
 import FilmCardView from '../view/film-card.js';
-import FilmDetailsView from '../view/film-details.js';
-import CommentView from '../view/comments.js';
+// import FilmDetailsView from '../view/film-details.js';
+// import CommentView from '../view/comment.js';
 import ShowMoreButtonView from '../view/show-more-button.js';
 import {randomFilms} from '../mock/films.js';
 import {render, remove} from '../utils/render.js';
 import {sortFilmsDate, sortFilmsRating} from '../utils/sort.js';
-
-const QUANTITY_RENDER_FILMS = 5;
-const QUANTITY_RENDER_EXTRA_FILMS = 2;
-const QUANTITY_EXTRA_CATEGORIES = 2;
-let showingFilmsCount = QUANTITY_RENDER_FILMS;
+import MovieDetailsPresenter from './movie-details.js';
 
 export default class MovieList {
   constructor(container) {
     this._container = container;
+
+    this._quantityRenderFilms = QuantityFilms.FILMS;
+    this._quantityRenderExtraFilms = QuantityFilms.EXTRA_FILMS;
+    this._quantityExtraCategories = QuantityFilms.EXTRA_CATEGORIES;
+    this._showingFilmsCount = this._quantityRenderFilms;
+
     this._films = randomFilms.slice();
     this._sourceFilms = randomFilms.slice();
     this._filmsContainerComponent = new FilmsContainerView();
     this._showMoreButtonComponent = new ShowMoreButtonView();
     this._currentSortType = SortType.DEFAULT;
+    this._moviesCards = {};
+    this._moviesDetailsCards = {};
 
     this._renderFilmsList = this._renderFilmsList.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
@@ -41,8 +45,9 @@ export default class MovieList {
 
     render(this._filmsList, this._showMoreButtonComponent);
 
-    for (let i = 0; i < QUANTITY_RENDER_FILMS; i++) {
+    for (let i = 0; i < this._quantityRenderFilms; i++) {
       const FilmCard = new FilmCardView(this._films[i]);
+      this._moviesCards[this._films[i].id] = FilmCard;
 
       render(this._filmsList.querySelector(`.films-list__container`), FilmCard);
 
@@ -52,8 +57,8 @@ export default class MovieList {
 
     }
 
-    for (let i = 0; i < QUANTITY_EXTRA_CATEGORIES; i++) {
-      for (let k = 0; k < QUANTITY_RENDER_EXTRA_FILMS; k++) {
+    for (let i = 0; i < this._quantityExtraCategories; i++) {
+      for (let k = 0; k < this._quantityRenderExtraFilms; k++) {
         const extraFilmsCategories = filmsListExtra[i].querySelector(`.films-list__container`);
 
         const FilmCard = new FilmCardView(this._films[k]);
@@ -70,41 +75,23 @@ export default class MovieList {
   }
 
   _renderFilmDetails(film) {
-    if (document.querySelector(`.film-details`)) {
-      document.querySelector(`.film-details`).remove();
+    if (this._moviesDetailsCards !== {}) {
+      Object.values(this._moviesDetailsCards).forEach((card) => card.destroy());
     }
 
-    const FilmDetails = new FilmDetailsView(film);
+    const movieDetailsPresenter = new MovieDetailsPresenter(film);
+    movieDetailsPresenter.init();
 
-    const siteFooter = document.querySelector(`.footer`);
-
-    render(siteFooter, FilmDetails, `afterend`);
-
-    for (let k = 0; k < film.comments.length; k++) {
-      render(FilmDetails.getElement().querySelector(`.film-details__comments-list`), new CommentView(film.comments[k]));
-    }
-
-    const closePopupKeydown = (evt) => {
-      if (evt.keyCode === 27) {
-        remove(FilmDetails);
-        document.removeEventListener(`keydown`, closePopupKeydown);
-      }
-    };
-
-    FilmDetails.setClickHandler(() => {
-      remove(FilmDetails);
-      document.removeEventListener(`keydown`, closePopupKeydown);
-    });
-
-    document.addEventListener(`keydown`, closePopupKeydown);
+    this._moviesDetailsCards[film.id] = movieDetailsPresenter;
   }
 
   _renderFilmsList() {
-    const prevFilmsCount = showingFilmsCount;
-    showingFilmsCount += QUANTITY_RENDER_FILMS;
+    const prevFilmsCount = this._showingFilmsCount;
+    this._showingFilmsCount += this._quantityRenderFilms;
 
-    this._films.slice(prevFilmsCount, showingFilmsCount).forEach((elem, i) => {
+    this._films.slice(prevFilmsCount, this._showingFilmsCount).forEach((elem, i) => {
       const FilmCard = new FilmCardView(elem);
+      this._moviesCards[this._films[prevFilmsCount + i].id] = FilmCard;
 
       render(this._filmsList.querySelector(`.films-list__container`), FilmCard);
 
@@ -113,7 +100,7 @@ export default class MovieList {
       });
     });
 
-    if (showingFilmsCount >= this._films.length) {
+    if (this._showingFilmsCount >= this._films.length) {
       remove(this._showMoreButtonComponent);
     }
   }
@@ -148,7 +135,8 @@ export default class MovieList {
   }
 
   _clearFilmList() {
-    this._filmsList.querySelector(`.films-list__container`).innerHTML = ``;
-    showingFilmsCount = QUANTITY_RENDER_FILMS;
+    Object.values(this._moviesCards).forEach((card) => remove(card));
+    this._moviesCards = {};
+    this._showingFilmsCount = this._quantityRenderFilms;
   }
 }

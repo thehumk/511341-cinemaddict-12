@@ -1,4 +1,4 @@
-import {QUANTITY_ALL_FILMS} from '../variables.js';
+import {QuantityFilms} from '../variables.js';
 
 const profileRatingTable = [
   {
@@ -18,7 +18,7 @@ const profileRatingTable = [
     rating: `movie buff`
   },
   {
-    quantityFilms: QUANTITY_ALL_FILMS + 1
+    quantityFilms: QuantityFilms.ALL_FILMS + 1
   }
 ];
 
