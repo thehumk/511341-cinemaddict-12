@@ -15,6 +15,7 @@ export const createRandomComments = () => {
 
   for (let i = 0; i < getRandomNumber(MIN_COMMENTS_COUNT, MAX_COMMENTS_COUNT); i++) {
     comments[i] = {
+      id: `42`,
       author: `Author`,
       comment: `text...`,
       date: new Date(),

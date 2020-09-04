@@ -1,7 +1,19 @@
-export const QUANTITY_ALL_FILMS = 100000;
+export const QuantityFilms = {
+  ALL_FILMS: 100000,
+  FILMS: 5,
+  EXTRA_FILMS: 2,
+  EXTRA_CATEGORIES: 2,
+};
 
 export const SortType = {
   DEFAULT: `default`,
   DATE: `date`,
   RATING: `rating`,
+};
+
+export const EmojiType = {
+  SMILE: `smile`,
+  SLEEPING: `sleeping`,
+  PUKE: `puke`,
+  ANGRY: `angry`
 };

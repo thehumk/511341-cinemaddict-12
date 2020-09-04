@@ -1,4 +1,4 @@
-import {QUANTITY_ALL_FILMS} from './variables.js';
+import {QuantityFilms} from './variables.js';
 import {render} from './utils/render.js';
 import ProfileView from './view/profile.js';
 import MenuView from './view/menu.js';
@@ -7,7 +7,7 @@ import FooterStatisticsView from './view/footer-statistics.js';
 import {QANTITY_FILMS} from './mock/films.js';
 import {profileMock} from './mock/profile.js';
 import {filter} from './mock/filter.js';
-import MovieListPresenter from './presenter/movie.js';
+import MovieListPresenter from './presenter/movie-list.js';
 
 const siteHeader = document.querySelector(`.header`);
 const siteMain = document.querySelector(`.main`);
@@ -22,7 +22,7 @@ if (QANTITY_FILMS === 0) {
   render(siteMain, noData);
   render(footerStatistics, new FooterStatisticsView(0));
 } else {
-  render(footerStatistics, new FooterStatisticsView(QUANTITY_ALL_FILMS));
+  render(footerStatistics, new FooterStatisticsView(QuantityFilms.ALL_FILMS));
 
   const movieList = new MovieListPresenter(siteMain);
   movieList.init();

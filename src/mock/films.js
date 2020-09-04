@@ -5,6 +5,8 @@ export const QANTITY_FILMS = 20;
 const MIN_LENGTH_DESCRIPTION = 1;
 const MAX_LENGTH_DESCRIPTION = 5;
 
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
 const FILMS_TITLE = [
   `The Dance of Life`,
   `Sagebrush Trail`,
@@ -56,31 +58,59 @@ const createRandomFilms = () => {
   for (let i = 0; i < QANTITY_FILMS; i++) {
     const releaseDate = new Date(getRandomNumber(1930, 2020) + `-` + getRandomNumber(1, 12) + `-` + getRandomNumber(1, 28));
 
+    // films[i] = {
+    //   title: FILMS_TITLE[getRandomNumber(0, FILMS_TITLE.length - 1)],
+    //   alternativeTitle: `Alternative title`,
+    //   poster: `images/posters/` + FILMS_POSTERS[getRandomNumber(0, FILMS_POSTERS.length - 1)],
+    //   rating: getRandomNumber(0, 10, 1),
+    //   ageRating: `16+`,
+    //   director: `Anthony Mann`,
+    //   writes: [`Anne Wigton`, `Heinz Herald`, `Richard Weil`],
+    //   actors: [`Erich von Stroheim`, `Mary Beth Hughes`, `Dan Duryea`],
+    //   release: {
+    //     date: releaseDate,
+    //     country: `USA`
+    //   },
+    //   runtime: getRandomNumber(60, 200),
+    //   genre: [`Western`, `Drama`],
+    //   description: getRandomDescription(),
+    //   comments: createRandomComments(),
+    //   userDetails: {
+    //     watchlist: getRandomBoolean(),
+    //     favorite: getRandomBoolean(),
+    //     alreadyWatched: getRandomBoolean(),
+    //   }
+    // };
+
     films[i] = {
-      title: FILMS_TITLE[getRandomNumber(0, FILMS_TITLE.length - 1)],
-      alternativeTitle: `Alternative title`,
-      poster: `images/posters/` + FILMS_POSTERS[getRandomNumber(0, FILMS_POSTERS.length - 1)],
-      rating: getRandomNumber(0, 10, 1),
-      ageRating: `16+`,
-      director: `Anthony Mann`,
-      writes: [`Anne Wigton`, `Heinz Herald`, `Richard Weil`],
-      actors: [`Erich von Stroheim`, `Mary Beth Hughes`, `Dan Duryea`],
-      release: {
-        date: releaseDate,
-        country: `USA`
-      },
-      runtime: getRandomNumber(60, 200),
-      genre: [`Western`, `Drama`],
-      description: getRandomDescription(),
+      id: generateId(),
       comments: createRandomComments(),
-      userDetails: {
+      film_info: {
+        title: FILMS_TITLE[getRandomNumber(0, FILMS_TITLE.length - 1)],
+        alternative_title: `Alternative title`,
+        poster: `images/posters/` + FILMS_POSTERS[getRandomNumber(0, FILMS_POSTERS.length - 1)],
+        total_rating: getRandomNumber(0, 10, 1),
+        age_rating: `16+`,
+        director: `Anthony Mann`,
+        writes: [`Anne Wigton`, `Heinz Herald`, `Richard Weil`],
+        actors: [`Erich von Stroheim`, `Mary Beth Hughes`, `Dan Duryea`],
+        release: {
+          date: releaseDate,
+          release_country: `USA`,
+        },
+        runtime: getRandomNumber(60, 200),
+        genre: [`Western`, `Drama`],
+        description: getRandomDescription(),
+      },
+      user_details: {
         watchlist: getRandomBoolean(),
         favorite: getRandomBoolean(),
-        alreadyWatched: getRandomBoolean(),
+        already_watched: getRandomBoolean(),
+        watching_date: `2019-04-12T16:12:32.554Z`,
       }
     };
-  }
 
+  }
   return films;
 };
 
