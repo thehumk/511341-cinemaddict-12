@@ -8,15 +8,15 @@ const createFilter = () => {
   };
 
   for (let i = 0; i < randomFilms.length; i++) {
-    if (randomFilms[i].user_details.watchlist) {
+    if (randomFilms[i].userDetails.watchlist) {
       filter.watchlist += 1;
     }
 
-    if (randomFilms[i].user_details.favorite) {
+    if (randomFilms[i].userDetails.favorite) {
       filter.favorites += 1;
     }
 
-    if (randomFilms[i].user_details.already_watched) {
+    if (randomFilms[i].userDetails.alreadyWatched) {
       filter.history += 1;
     }
   }

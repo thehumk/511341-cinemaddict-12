@@ -56,57 +56,31 @@ const createRandomFilms = () => {
   const films = [];
 
   for (let i = 0; i < QANTITY_FILMS; i++) {
-    const releaseDate = new Date(getRandomNumber(1930, 2020) + `-` + getRandomNumber(1, 12) + `-` + getRandomNumber(1, 28));
-
-    // films[i] = {
-    //   title: FILMS_TITLE[getRandomNumber(0, FILMS_TITLE.length - 1)],
-    //   alternativeTitle: `Alternative title`,
-    //   poster: `images/posters/` + FILMS_POSTERS[getRandomNumber(0, FILMS_POSTERS.length - 1)],
-    //   rating: getRandomNumber(0, 10, 1),
-    //   ageRating: `16+`,
-    //   director: `Anthony Mann`,
-    //   writes: [`Anne Wigton`, `Heinz Herald`, `Richard Weil`],
-    //   actors: [`Erich von Stroheim`, `Mary Beth Hughes`, `Dan Duryea`],
-    //   release: {
-    //     date: releaseDate,
-    //     country: `USA`
-    //   },
-    //   runtime: getRandomNumber(60, 200),
-    //   genre: [`Western`, `Drama`],
-    //   description: getRandomDescription(),
-    //   comments: createRandomComments(),
-    //   userDetails: {
-    //     watchlist: getRandomBoolean(),
-    //     favorite: getRandomBoolean(),
-    //     alreadyWatched: getRandomBoolean(),
-    //   }
-    // };
-
     films[i] = {
       id: generateId(),
       comments: createRandomComments(),
-      film_info: {
+      filmInfo: {
         title: FILMS_TITLE[getRandomNumber(0, FILMS_TITLE.length - 1)],
-        alternative_title: `Alternative title`,
+        alternativeTitle: `Alternative title`,
         poster: `images/posters/` + FILMS_POSTERS[getRandomNumber(0, FILMS_POSTERS.length - 1)],
-        total_rating: getRandomNumber(0, 10, 1),
-        age_rating: `16+`,
+        totalRating: getRandomNumber(0, 10, 1),
+        ageRating: `16+`,
         director: `Anthony Mann`,
         writes: [`Anne Wigton`, `Heinz Herald`, `Richard Weil`],
         actors: [`Erich von Stroheim`, `Mary Beth Hughes`, `Dan Duryea`],
         release: {
-          date: releaseDate,
-          release_country: `USA`,
+          date: `2019-05-11T00:00:00.000Z`,
+          releaseCountry: `USA`,
         },
         runtime: getRandomNumber(60, 200),
         genre: [`Western`, `Drama`],
         description: getRandomDescription(),
       },
-      user_details: {
+      userDetails: {
         watchlist: getRandomBoolean(),
         favorite: getRandomBoolean(),
-        already_watched: getRandomBoolean(),
-        watching_date: `2019-04-12T16:12:32.554Z`,
+        alreadyWatched: getRandomBoolean(),
+        watchingDate: `2019-04-12T16:12:32.554Z`,
       }
     };
 

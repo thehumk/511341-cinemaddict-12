@@ -28,6 +28,7 @@ export default class Sorting extends Abstract {
 
     evt.preventDefault();
     this._callback.sortTypeChange(evt.target.dataset.sortType);
+    evt.target.classList.add(`sort__button--active`);
   }
 
   setSortTypeChangeHandler(callback) {
