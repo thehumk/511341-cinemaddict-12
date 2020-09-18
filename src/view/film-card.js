@@ -1,26 +1,25 @@
 import Abstract from './abstract.js';
+import {setFormatTimeDuration, setFormatReleaseDate} from '../utils/util.js';
 
 const createFilmCardTemplate = (film) => {
-  const shortDescription = film.film_info.description.length > 140 ? film.film_info.description.slice(0, 140) + `...` : film.film_info.description;
-
-  const duration = (film.film_info.runtime / 60 | 0) + `h ` + (film.film_info.runtime % 60) + `m`;
+  const shortDescription = film.filmInfo.description.length > 140 ? film.filmInfo.description.slice(0, 140) + `...` : film.filmInfo.description;
 
   return (
     `<article class="film-card">
-      <h3 class="film-card__title">${film.film_info.title}</h3>
-      <p class="film-card__rating">${film.film_info.total_rating}</p>
+      <h3 class="film-card__title">${film.filmInfo.title}</h3>
+      <p class="film-card__rating">${film.filmInfo.totalRating}</p>
       <p class="film-card__info">
-        <span class="film-card__year">${film.film_info.release.date.getFullYear()}</span>
-        <span class="film-card__duration">${duration}</span>
-        <span class="film-card__genre">${film.film_info.genre[0]}</span>
+        <span class="film-card__year">${setFormatReleaseDate(film.filmInfo.release.date, false)}</span>
+        <span class="film-card__duration">${setFormatTimeDuration(film.filmInfo.runtime)}</span>
+        <span class="film-card__genre">${film.filmInfo.genre[0]}</span>
       </p>
-      <img src="${film.film_info.poster}" alt="" class="film-card__poster">
+      <img src="${film.filmInfo.poster}" alt="" class="film-card__poster">
       <p class="film-card__description">${shortDescription}</p>
       <a class="film-card__comments">${film.comments.length} comments</a>
       <form class="film-card__controls">
-        <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist ${film.user_details.watchlist ? `film-card__controls-item--active` : ``}">Add to watchlist</button>
-        <button class="film-card__controls-item button film-card__controls-item--mark-as-watched ${film.user_details.already_watched ? `film-card__controls-item--active` : ``}">Mark as watched</button>
-        <button class="film-card__controls-item button film-card__controls-item--favorite ${film.user_details.favorite ? `film-card__controls-item--active` : ``}">Mark as favorite</button>
+        <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist ${film.userDetails.watchlist ? `film-card__controls-item--active` : ``}">Add to watchlist</button>
+        <button class="film-card__controls-item button film-card__controls-item--mark-as-watched ${film.userDetails.alreadyWatched ? `film-card__controls-item--active` : ``}">Mark as watched</button>
+        <button class="film-card__controls-item button film-card__controls-item--favorite ${film.userDetails.favorite ? `film-card__controls-item--active` : ``}">Mark as favorite</button>
       </form>
     </article>`
   );

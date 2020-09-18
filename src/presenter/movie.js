@@ -1,48 +1,37 @@
 import FilmCardView from '../view/film-card.js';
 import FilmDetailsView from '../view/film-details.js';
-import CommentView from '../view/comment.js';
 import {render, remove, replace} from '../utils/render.js';
-import {EmojiType} from '../variables.js';
+import {UpdateType} from '../variables.js';
 
-export default class MovieDetails {
+export default class Movie {
   constructor(changeData) {
     this._changeData = changeData;
-    this._popupStatus = false;
+    this.popupStatus = false;
 
     this._filmCardComponent = null;
     this._filmDetailsComponent = null;
 
-    this._localCommentText = ``;
-    this._selectedCommentEmoji = null;
-
-    this._openPopupFilm = this._openPopupFilm.bind(this);
+    this.openPopupFilm = this.openPopupFilm.bind(this);
     this._closePopupFilm = this._closePopupFilm.bind(this);
     this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
     this._handleWatchedClick = this._handleWatchedClick.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
-    this.destroyFilmDetails = this.destroyFilmDetails.bind(this);
-    this._localCommentTextHandler = this._localCommentTextHandler.bind(this);
-    this._handleCommentEmojiClick = this._handleCommentEmojiClick.bind(this);
   }
 
-  init(film, container, clearPopupFilm) {
+  init(film, container, clearPopupFilm, commentsPresenter) {
     this._film = film;
     this._container = container;
 
     const prevFilmCardComponent = this._filmCardComponent;
-    this._prevFilmDetailsComponent = this._filmDetailsComponent;
 
     this._filmCardComponent = new FilmCardView(this._film);
     this._filmDetailsComponent = new FilmDetailsView(this._film);
 
-    this._commentsFilm = [];
-    for (let i = 0; i < this._film.comments.length; i++) {
-      this._commentsFilm[i] = new CommentView(this._film.comments[i]);
-    }
+    this._commentPresenter = commentsPresenter;
 
     this._filmCardComponent.setClickHandler(() => {
       clearPopupFilm();
-      this._openPopupFilm();
+      this.openPopupFilm();
     });
 
     if (prevFilmCardComponent === null) {
@@ -51,9 +40,8 @@ export default class MovieDetails {
       replace(this._filmCardComponent, prevFilmCardComponent);
     }
 
-    if (this._popupStatus === true) {
-      this._openPopupFilm();
-      this._filmDetailsComponent.getElement().querySelector(`.film-details__comment-input`).value = this._localCommentText;
+    if (this.popupStatus === true) {
+      this.openPopupFilm();
     }
 
     this._filmCardComponent.setWatchlistClickHandler(this._handleWatchlistClick);
@@ -61,7 +49,7 @@ export default class MovieDetails {
     this._filmCardComponent.setFavoriteClickHandler(this._handleFavoriteClick);
   }
 
-  _openPopupFilm() {
+  openPopupFilm() {
     const siteFooter = document.querySelector(`.footer`);
 
     render(siteFooter, this._filmDetailsComponent, `afterend`);
@@ -70,15 +58,11 @@ export default class MovieDetails {
     this._filmDetailsComponent.setWatchedClickHandler(this._handleWatchedClick);
     this._filmDetailsComponent.setFavoriteClickHandler(this._handleFavoriteClick);
 
-    this._filmDetailsComponent.getElement().querySelector(`.film-details__comment-input`).addEventListener(`input`, this._localCommentTextHandler);
+    const commentsContainer = this._filmDetailsComponent.getElement().querySelector(`.form-details__bottom-container`);
 
-    this._filmDetailsComponent.setCommentEmojiClickHandler(this._handleCommentEmojiClick);
+    this._commentPresenter.init(commentsContainer);
 
-    for (let i = 0; i < this._film.comments.length; i++) {
-      render(this._filmDetailsComponent.getElement().querySelector(`.film-details__comments-list`), this._commentsFilm[i]);
-    }
-
-    this._popupStatus = true;
+    this.popupStatus = true;
 
     this._closePopupFilm();
   }
@@ -88,65 +72,49 @@ export default class MovieDetails {
       if (evt.keyCode === 27) {
         remove(this._filmDetailsComponent);
         document.removeEventListener(`keydown`, closePopupKeydown);
-        this._popupStatus = false;
+        this.popupStatus = false;
+
+        this._userInputText = ``;
+        this._userInputEmoji = ``;
       }
     };
 
     this._filmDetailsComponent.setClickHandler(() => {
       remove(this._filmDetailsComponent);
       document.removeEventListener(`keydown`, closePopupKeydown);
-      this._popupStatus = false;
+      this.popupStatus = false;
+
+      this._userInputText = ``;
+      this._userInputEmoji = ``;
     });
 
     document.addEventListener(`keydown`, closePopupKeydown);
   }
 
   _handleWatchlistClick() {
-    this._film.user_details.watchlist = !this._film.user_details.watchlist;
-    this._changeData(this._film, this._popupStatus);
+    this._film.userDetails.watchlist = !this._film.userDetails.watchlist;
+
+    this._changeData(UpdateType.MINOR, this._film);
   }
 
   _handleWatchedClick() {
-    this._film.user_details.already_watched = !this._film.user_details.already_watched;
-    this._changeData(this._film, this._popupStatus);
+    this._film.userDetails.alreadyWatched = !this._film.userDetails.alreadyWatched;
+
+    this._changeData(UpdateType.MINOR, this._film);
   }
 
   _handleFavoriteClick() {
-    this._film.user_details.favorite = !this._film.user_details.favorite;
-    this._changeData(this._film, this._popupStatus);
-  }
+    this._film.userDetails.favorite = !this._film.userDetails.favorite;
 
-  _localCommentTextHandler(evt) {
-    evt.preventDefault();
-    this._localCommentText = evt.target.value;
-  }
-
-  _handleCommentEmojiClick(emojiType) {
-    if (this._selectedCommentEmoji === emojiType) {
-      return;
-    }
-
-    const emojiAddContainer = this._filmDetailsComponent.getElement().querySelector(`.film-details__add-emoji-label`);
-
-    switch (emojiType) {
-      case `emoji-` + EmojiType.SMILE:
-        emojiAddContainer.innerHTML = `<img src="images/emoji/${EmojiType.SMILE}.png" width="55" height="55" alt="${emojiType}">`;
-        break;
-      case `emoji-` + EmojiType.SLEEPING:
-        emojiAddContainer.innerHTML = `<img src="images/emoji/${EmojiType.SLEEPING}.png" width="55" height="55" alt="${emojiType}">`;
-        break;
-      case `emoji-` + EmojiType.PUKE:
-        emojiAddContainer.innerHTML = `<img src="images/emoji/${EmojiType.PUKE}.png" width="55" height="55" alt="${emojiType}">`;
-        break;
-      case `emoji-` + EmojiType.ANGRY:
-        emojiAddContainer.innerHTML = `<img src="images/emoji/${EmojiType.ANGRY}.png" width="55" height="55" alt="${emojiType}">`;
-        break;
-    }
-
-    this._selectedCommentEmoji = emojiType;
+    this._changeData(UpdateType.MINOR, this._film);
   }
 
   destroyFilmDetails() {
+    remove(this._filmDetailsComponent);
+  }
+
+  destroy() {
+    remove(this._filmCardComponent);
     remove(this._filmDetailsComponent);
   }
 }

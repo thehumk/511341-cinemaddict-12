@@ -1,9 +1,9 @@
 export const sortFilmsDate = (filmA, filmB) => {
-  if (filmA.film_info.release.date > filmB.film_info.release.date) {
+  if (filmA.filmInfo.release.date > filmB.filmInfo.release.date) {
     return -1;
   }
 
-  if (filmA.film_info.release.date < filmB.film_info.release.date) {
+  if (filmA.filmInfo.release.date < filmB.filmInfo.release.date) {
     return 1;
   }
 
@@ -11,11 +11,11 @@ export const sortFilmsDate = (filmA, filmB) => {
 };
 
 export const sortFilmsRating = (filmA, filmB) => {
-  if (filmA.film_info.total_rating > filmB.film_info.total_rating) {
+  if (filmA.filmInfo.totalRating > filmB.filmInfo.totalRating) {
     return -1;
   }
 
-  if (filmA.film_info.total_rating < filmB.film_info.total_rating) {
+  if (filmA.filmInfo.totalRating < filmB.filmInfo.totalRating) {
     return 1;
   }
 
