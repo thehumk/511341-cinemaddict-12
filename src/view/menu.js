@@ -22,6 +22,8 @@ export default class Menu extends Abstract {
     this._currentFilterType = currentFilterType;
 
     this._filterTypeChangeHandler = this._filterTypeChangeHandler.bind(this);
+    this._statisticsClickHandler = this._statisticsClickHandler.bind(this);
+    this._navigationContainerClickHandler = this._navigationContainerClickHandler.bind(this);
   }
 
   _getTemplate() {
@@ -36,10 +38,41 @@ export default class Menu extends Abstract {
   setFilterTypeChangeHandler(callback) {
     this._callback.filterTypeChange = callback;
 
-    const filterItems = this.getElement().querySelectorAll(`.main-navigation__item`);
+    this._filterItems = this.getElement().querySelectorAll(`.main-navigation__item`);
 
-    for (const elem of filterItems) {
+    for (const elem of this._filterItems) {
       elem.addEventListener(`click`, this._filterTypeChangeHandler);
     }
+  }
+
+  _statisticsClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.statisticsClick();
+
+    this.getElement().querySelector(`.main-navigation__item--active`).classList.remove(`main-navigation__item--active`);
+    this.getElement().querySelector(`.main-navigation__additional`).classList.add(`main-navigation__item--active`);
+  }
+
+  setStatisticsClickHandler(callback) {
+    this._callback.statisticsClick = callback;
+    this.getElement().querySelector(`.main-navigation__additional`).addEventListener(`click`, this._statisticsClickHandler);
+  }
+
+  removeStatisticsClickHandler() {
+    this.getElement().querySelector(`.main-navigation__additional`).removeEventListener(`click`, this._statisticsClickHandler);
+  }
+
+  _navigationContainerClickHandler() {
+    this.getElement().querySelector(`.main-navigation__item--active`).classList.remove(`main-navigation__item--active`);
+    this._callback.navigationContainerCLick();
+  }
+
+  setNavigationContainerClickHandler(callback) {
+    this._callback.navigationContainerCLick = callback;
+    this.getElement().querySelector(`.main-navigation__items`).addEventListener(`click`, this._navigationContainerClickHandler);
+  }
+
+  removeNavigationContainerClickHandler() {
+    this.getElement().querySelector(`.main-navigation__items`).removeEventListener(`click`, this._navigationContainerClickHandler);
   }
 }

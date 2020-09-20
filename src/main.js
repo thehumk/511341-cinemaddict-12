@@ -1,10 +1,8 @@
 import {QuantityFilms} from './variables.js';
 import {render} from './utils/render.js';
 import ProfileView from './view/profile.js';
-// import MenuView from './view/menu.js';
 import FooterStatisticsView from './view/footer-statistics.js';
 import MoviesModel from './model/movies.js';
-// import CommentsModel from './model/comments.js';
 import FilterModel from './model/filter.js';
 import {randomFilms, QANTITY_FILMS} from './mock/films.js';
 import {profileMock} from './mock/profile.js';
@@ -18,13 +16,12 @@ const footerStatistics = siteFooter.querySelector(`.footer__statistics`);
 
 const filterModel = new FilterModel();
 const moviesModel = new MoviesModel();
-// const commentsModel = new CommentsModel();
 
 moviesModel.setFilms(randomFilms);
 
 render(siteHeader, new ProfileView(profileMock));
 
-const filterPresenter = new FilterPresenter(siteMain, filterModel, moviesModel);
+const filterPresenter = new FilterPresenter(siteMain, moviesModel.getFilms(), filterModel, moviesModel);
 const movieList = new MovieListPresenter(siteMain, moviesModel, filterModel);
 
 
@@ -34,6 +31,5 @@ if (QANTITY_FILMS === 0) {
   render(footerStatistics, new FooterStatisticsView(QuantityFilms.ALL_FILMS));
 }
 
-
-filterPresenter.init();
+filterPresenter.init(movieList);
 movieList.init();

@@ -41,6 +41,13 @@ const DESCRIPTION = [
   `In rutrum ac purus sit amet tempus.`
 ];
 
+const GENRES = [
+  `Western`,
+  `Drama`,
+  `Comedy`,
+  `Fantasy`
+];
+
 const getRandomDescription = () => {
   let randomDescription = ``;
   const lengthDescription = getRandomNumber(MIN_LENGTH_DESCRIPTION, MAX_LENGTH_DESCRIPTION);
@@ -50,6 +57,20 @@ const getRandomDescription = () => {
   }
 
   return randomDescription;
+};
+
+const getRandomGenres = () => {
+  let randomGenres = [];
+  const countGenries = getRandomNumber(1, GENRES.length);
+
+  for (let i = 0; i < countGenries; i++) {
+    const randomGenre = GENRES[getRandomNumber(0, GENRES.length - 1)];
+    if (randomGenres.indexOf(randomGenre) === -1) {
+      randomGenres.push(randomGenre);
+    }
+  }
+
+  return randomGenres;
 };
 
 const createRandomFilms = () => {
@@ -69,18 +90,18 @@ const createRandomFilms = () => {
         writes: [`Anne Wigton`, `Heinz Herald`, `Richard Weil`],
         actors: [`Erich von Stroheim`, `Mary Beth Hughes`, `Dan Duryea`],
         release: {
-          date: `2019-05-11T00:00:00.000Z`,
+          date: `${getRandomNumber(1940, 2020)}-05-11T00:00:00.000Z`,
           releaseCountry: `USA`,
         },
         runtime: getRandomNumber(60, 200),
-        genre: [`Western`, `Drama`],
+        genre: getRandomGenres(),
         description: getRandomDescription(),
       },
       userDetails: {
         watchlist: getRandomBoolean(),
         favorite: getRandomBoolean(),
         alreadyWatched: getRandomBoolean(),
-        watchingDate: `2019-04-12T16:12:32.554Z`,
+        watchingDate: `2020-0${getRandomNumber(7, 9)}-1${getRandomNumber(1, 9)}T16:12:32.554Z`,
       }
     };
 
