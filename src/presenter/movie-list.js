@@ -128,6 +128,7 @@ export default class MovieList {
 
   _renderSort() {
     if (this._sortComponent !== null) {
+      remove(this._sortComponent);
       this._sortComponent = null;
     }
 
@@ -209,5 +210,9 @@ export default class MovieList {
     if (filmsCount > this._showingFilmsCount) {
       this._renderShowMoreButton();
     }
+  }
+
+  hideMovieList() {
+    this._clearBoard({resetRenderedFilmCount: true, resetSortType: true});
   }
 }

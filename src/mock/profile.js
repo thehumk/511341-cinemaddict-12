@@ -24,7 +24,7 @@ const profileRatingTable = [
 
 const getProfile = () => {
   const profile = {
-    avatar: `images/bitmap@2x.png`,
+    avatar: `bitmap@2x.png`,
     watchedFilms: 25,
     rating: ``,
   };
