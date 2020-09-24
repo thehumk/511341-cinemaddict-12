@@ -42,7 +42,7 @@ const createFilmDetailsTemplate = (film) => {
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Writers</td>
-                  <td class="film-details__cell">${film.filmInfo.writes.join(`, `)}</td>
+                  <td class="film-details__cell">${film.filmInfo.writers.join(`, `)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Actors</td>

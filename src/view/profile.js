@@ -1,21 +1,24 @@
 import Abstract from './abstract.js';
+import {getProfileRating} from '../utils/profile.js';
 
-const createProfileTemplate = (profile) => {
+const createProfileTemplate = (films) => {
+  const profileRating = getProfileRating(films);
+
   return (
     `<section class="header__profile profile">
-      <p class="profile__rating">${profile.rating}</p>
-      <img class="profile__avatar" src="images/${profile.avatar}" alt="Avatar" width="35" height="35">
+      <p class="profile__rating">${profileRating}</p>
+      <img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
     </section>`
   );
 };
 
 export default class Profile extends Abstract {
-  constructor(profile) {
+  constructor(moviesModel) {
     super();
-    this._profile = profile;
+    this._moviesModel = moviesModel;
   }
 
   _getTemplate() {
-    return createProfileTemplate(this._profile);
+    return createProfileTemplate(this._moviesModel.getFilms());
   }
 }

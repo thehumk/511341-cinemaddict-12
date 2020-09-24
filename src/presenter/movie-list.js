@@ -3,28 +3,32 @@ import SortingView from '../view/sorting.js';
 import FilmsContainerView from '../view/films-container.js';
 import ShowMoreButtonView from '../view/show-more-button.js';
 import NoDataView from '../view/no-data.js';
-import {QANTITY_FILMS} from '../mock/films.js';
+import LoadingView from '../view/loading.js';
 import {render, remove} from '../utils/render.js';
 import {sortFilmsDate, sortFilmsRating} from '../utils/sort.js';
 import {filter} from '../utils/filter.js';
 import MoviePresenter from './movie.js';
-import CommentsPresenter from './comments.js';
-import CommentsModel from '../model/comments.js';
 
 export default class MovieList {
-  constructor(container, moviesModel, filterModel) {
+  constructor(container, moviesModel, filterModel, api, profileView) {
     this._container = container;
     this._moviesModel = moviesModel;
     this._filterModel = filterModel;
+    this._api = api;
+    this._profileView = profileView;
+
+    this._isLoading = true;
 
     this._quantityRenderFilms = QuantityFilms.FILMS;
     this._quantityRenderExtraFilms = QuantityFilms.EXTRA_FILMS;
     this._quantityExtraCategories = QuantityFilms.EXTRA_CATEGORIES;
     this._showingFilmsCount = this._quantityRenderFilms;
-    this._quantityAllFilms = QANTITY_FILMS;
+    this._quantityAllFilms = 0;
 
     this._filmsContainerComponent = new FilmsContainerView();
     this._noDataComponent = new NoDataView();
+    this._loadingComponent = new LoadingView();
+
     this._sortComponent = null;
     this._showMoreButtonComponent = null;
 
@@ -70,14 +74,10 @@ export default class MovieList {
   }
 
   _renderFilm(film) {
-    const commentsModel = new CommentsModel(film.comments);
-
-    const moviePresenter = new MoviePresenter(this._handleViewAction);
-    const commentsPresenter = new CommentsPresenter(film, commentsModel, this._moviesModel);
+    const moviePresenter = new MoviePresenter(this._handleViewAction, this._moviesModel, this._api);
     this._moviesCards[film.id] = moviePresenter;
-    this._commentsFilms[film.id] = commentsPresenter;
 
-    this._moviesCards[film.id].init(film, this._filmsList.querySelector(`.films-list__container`), this._clearFilmsDetails, this._commentsFilms[film.id]);
+    this._moviesCards[film.id].init(film, this._filmsList.querySelector(`.films-list__container`), this._clearFilmsDetails);
   }
 
   _renderFilms(films) {
@@ -142,16 +142,19 @@ export default class MovieList {
   }
 
   _handleViewAction(updateType, updateFilm) {
-    this._moviesModel.updateFilm(updateType, updateFilm);
+    this._api.updateFilm(updateFilm).then((response) => {
+      this._moviesModel.updateFilm(updateType, response);
+    });
   }
 
   _handleModelEvent(updateType, update) {
     switch (updateType) {
       case UpdateType.PATCH:
         this._clearFilmsDetails();
-        this._moviesCards[update.id].init(update, this._filmsList.querySelector(`.films-list__container`), this._clearFilmsDetails, this._commentsFilms[update.id]);
+        this._moviesCards[update.id].init(update, this._filmsList.querySelector(`.films-list__container`), this._clearFilmsDetails);
         break;
       case UpdateType.MINOR:
+        this._profileView.updateElement();
         const popupStatus = this._moviesCards[update.id].popupStatus;
 
         this._clearBoard();
@@ -165,6 +168,11 @@ export default class MovieList {
         this._clearBoard({resetRenderedFilmCount: true, resetSortType: true});
         this._renderBoard({renderSort: true});
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
+        this._renderBoard();
+        break;
     }
   }
 
@@ -177,6 +185,7 @@ export default class MovieList {
     remove(this._filmsContainerComponent);
     remove(this._showMoreButtonComponent);
     remove(this._noDataComponent);
+    remove(this._loadingComponent);
 
     if (resetRenderedFilmCount) {
       this._showingFilmsCount = this._quantityRenderFilms;
@@ -191,6 +200,11 @@ export default class MovieList {
   }
 
   _renderBoard({renderSort = false} = {}) {
+    if (this._isLoading) {
+      render(this._container, this._loadingComponent);
+      return;
+    }
+
     const films = this._getFilms();
     const filmsCount = films.length;
 

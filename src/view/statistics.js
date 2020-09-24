@@ -3,9 +3,9 @@ import moment from 'moment';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {getTotalFilmsDuration, getTopGenre, getAllGenres} from '../utils/statistics.js';
-import {profileMock} from '../mock/profile.js';
 import {StatisticsPeriod} from '../variables.js';
 import {remove, render} from '../utils/render.js';
+import {getProfileRating} from '../utils/profile.js';
 
 const renderGenresChart = (statisticCtx, films) => {
   const genres = Object.keys(getAllGenres(films));
@@ -72,8 +72,9 @@ const renderGenresChart = (statisticCtx, films) => {
   });
 };
 
-const createStatisticsTemplate = (data) => {
+const createStatisticsTemplate = (data, films) => {
   const alreadyWatched = data.watchedFilms;
+  const profileRating = getProfileRating(films);
 
   const totalDuration = getTotalFilmsDuration(alreadyWatched);
 
@@ -86,8 +87,8 @@ const createStatisticsTemplate = (data) => {
     `<section class="statistic">
       <p class="statistic__rank">
         Your rank
-        <img class="statistic__img" src="images/${profileMock.avatar}" alt="Avatar" width="35" height="35">
-        <span class="statistic__rank-label">${profileMock.rating}</span>
+        <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
+        <span class="statistic__rank-label">${profileRating}</span>
       </p>
 
       <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters">
@@ -155,7 +156,7 @@ export default class Statistics extends Abstract {
   }
 
   _getTemplate() {
-    return createStatisticsTemplate(this._data);
+    return createStatisticsTemplate(this._data, this._films);
   }
 
   _removeElement() {
