@@ -1,11 +1,16 @@
 import FilmCardView from '../view/film-card.js';
 import FilmDetailsView from '../view/film-details.js';
 import {render, remove, replace} from '../utils/render.js';
-import {UpdateType} from '../variables.js';
+import {UpdateType, KeyCode} from '../variables.js';
+import CommentsPresenter from './comments.js';
+import CommentsModel from '../model/comments.js';
 
 export default class Movie {
-  constructor(changeData) {
+  constructor(changeData, moviesModel, api) {
     this._changeData = changeData;
+    this._moviesModel = moviesModel;
+    this._api = api;
+
     this.popupStatus = false;
 
     this._filmCardComponent = null;
@@ -18,7 +23,7 @@ export default class Movie {
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
   }
 
-  init(film, container, clearPopupFilm, commentsPresenter) {
+  init(film, container, clearPopupFilm) {
     this._film = film;
     this._container = container;
 
@@ -26,8 +31,6 @@ export default class Movie {
 
     this._filmCardComponent = new FilmCardView(this._film);
     this._filmDetailsComponent = new FilmDetailsView(this._film);
-
-    this._commentPresenter = commentsPresenter;
 
     this._filmCardComponent.setClickHandler(() => {
       clearPopupFilm();
@@ -60,7 +63,14 @@ export default class Movie {
 
     const commentsContainer = this._filmDetailsComponent.getElement().querySelector(`.form-details__bottom-container`);
 
-    this._commentPresenter.init(commentsContainer);
+    const commentsModel = new CommentsModel();
+
+    this._api.getComments(this._film).then((response) => {
+      commentsModel.setComments(``, response);
+      const commentsPresenter = new CommentsPresenter(this._film, commentsModel, this._moviesModel, this._api);
+
+      commentsPresenter.init(commentsContainer);
+    });
 
     this.popupStatus = true;
 
@@ -69,7 +79,7 @@ export default class Movie {
 
   _closePopupFilm() {
     const closePopupKeydown = (evt) => {
-      if (evt.keyCode === 27) {
+      if (evt.keyCode === KeyCode.ESC) {
         remove(this._filmDetailsComponent);
         document.removeEventListener(`keydown`, closePopupKeydown);
         this.popupStatus = false;

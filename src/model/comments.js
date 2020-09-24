@@ -1,9 +1,9 @@
 import Observer from '../utils/observer.js';
 
 export default class Comments extends Observer {
-  constructor(comments) {
+  constructor() {
     super();
-    this._comments = comments;
+    this._comments = [];
   }
 
   setComments(updateType, comments) {

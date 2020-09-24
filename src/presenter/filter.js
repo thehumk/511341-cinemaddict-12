@@ -1,13 +1,12 @@
 import MenuView from '../view/menu.js';
 import StatisticsView from '../view/statistics.js';
 import {render, remove, replace} from '../utils/render.js';
-import {UpdateType} from '../variables.js';
+import {UpdateType, FilterType} from '../variables.js';
 import {filter} from '../utils/filter.js';
 
 export default class Filter {
-  constructor(container, films, filterModel, moviesModel) {
+  constructor(container, filterModel, moviesModel) {
     this._container = container;
-    this._films = films;
     this._filterModel = filterModel;
     this._moviesModel = moviesModel;
 
@@ -60,16 +59,16 @@ export default class Filter {
 
   _countFilters() {
     return {
-      watchlist: filter.WATCHLIST(this._moviesModel.getFilms()).length,
-      favorites: filter.FAVORITES(this._moviesModel.getFilms()).length,
-      history: filter.HISTORY(this._moviesModel.getFilms()).length,
+      watchlist: filter[FilterType.WATCHLIST](this._moviesModel.getFilms()).length,
+      favorites: filter[FilterType.FAVORITES](this._moviesModel.getFilms()).length,
+      history: filter[FilterType.HISTORY](this._moviesModel.getFilms()).length,
     };
   }
 
   _showStatisticsHandler() {
     this._moviePresenter.hideMovieList();
 
-    this._statisticsComponent = new StatisticsView(this._films, this._container);
+    this._statisticsComponent = new StatisticsView(this._moviesModel.getFilms(), this._container);
     render(this._container, this._statisticsComponent);
 
     this._filterComponent.removeStatisticsClickHandler();
