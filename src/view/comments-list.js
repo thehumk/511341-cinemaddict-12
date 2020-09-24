@@ -68,7 +68,7 @@ export default class CommentsList extends Abstract {
     this._callback.commentEmojiClick = callback;
     const emojies = this.getElement().querySelectorAll(`.film-details__emoji-label`);
 
-    for (let elem of emojies) {
+    for (const elem of emojies) {
       elem.addEventListener(`click`, this._commentEmojiClickHandler);
     }
   }
@@ -76,7 +76,7 @@ export default class CommentsList extends Abstract {
   removeCommentEmojiClickHandler() {
     const emojies = this.getElement().querySelectorAll(`.film-details__emoji-label`);
 
-    for (let elem of emojies) {
+    for (const elem of emojies) {
       elem.removeEventListener(`click`, this._commentEmojiClickHandler);
     }
   }
