@@ -8,11 +8,11 @@ export const getAllGenres = (films) => {
   const allGenres = [];
   films.map((film) => allGenres.push(film.filmInfo.genre));
 
-  const countGenres = allGenres.flat().reduce((a, c) => {
-    a[c] = a[c] || 0;
-    a[c]++;
+  const countGenres = allGenres.flat().reduce((accumulator, genre) => {
+    accumulator[genre] = accumulator[genre] || 0;
+    accumulator[genre]++;
 
-    return a;
+    return accumulator;
   }, {});
 
   return countGenres;
@@ -27,9 +27,7 @@ export const getTopGenre = (films) => {
 
   const maxCount = Math.max(...Object.values(genresCountObject));
 
-  const topGenre = ((obj, value) => {
-    return Object.keys(obj)[Object.values(obj).indexOf(value)];
-  });
+  const topGenre = Object.keys(genresCountObject)[Object.values(genresCountObject).indexOf(maxCount)];
 
-  return topGenre(genresCountObject, maxCount);
+  return topGenre;
 };

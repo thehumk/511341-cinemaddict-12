@@ -21,6 +21,8 @@ export default class Movie {
     this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
     this._handleWatchedClick = this._handleWatchedClick.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._closePopupHandler = this._closePopupHandler.bind(this);
+    this._closePopupKeydownHandler = this._closePopupKeydownHandler.bind(this);
   }
 
   init(film, container, clearPopupFilm) {
@@ -77,28 +79,27 @@ export default class Movie {
     this._closePopupFilm();
   }
 
+  _closePopupHandler() {
+    remove(this._filmDetailsComponent);
+    document.removeEventListener(`keydown`, this._closePopupKeydownHandler);
+    this.popupStatus = false;
+
+    this._userInputText = ``;
+    this._userInputEmoji = ``;
+  }
+
+  _closePopupKeydownHandler(evt) {
+    if (evt.keyCode === KeyCode.ESC) {
+      this._closePopupHandler();
+    }
+  }
+
   _closePopupFilm() {
-    const closePopupKeydown = (evt) => {
-      if (evt.keyCode === KeyCode.ESC) {
-        remove(this._filmDetailsComponent);
-        document.removeEventListener(`keydown`, closePopupKeydown);
-        this.popupStatus = false;
-
-        this._userInputText = ``;
-        this._userInputEmoji = ``;
-      }
-    };
-
     this._filmDetailsComponent.setClickHandler(() => {
-      remove(this._filmDetailsComponent);
-      document.removeEventListener(`keydown`, closePopupKeydown);
-      this.popupStatus = false;
-
-      this._userInputText = ``;
-      this._userInputEmoji = ``;
+      this._closePopupHandler();
     });
 
-    document.addEventListener(`keydown`, closePopupKeydown);
+    document.addEventListener(`keydown`, this._closePopupKeydownHandler);
   }
 
   _handleWatchlistClick() {
@@ -120,10 +121,12 @@ export default class Movie {
   }
 
   destroyFilmDetails() {
+    document.removeEventListener(`keydown`, this._closePopupKeydownHandler);
     remove(this._filmDetailsComponent);
   }
 
   destroy() {
+    document.removeEventListener(`keydown`, this._closePopupKeydownHandler);
     remove(this._filmCardComponent);
     remove(this._filmDetailsComponent);
   }

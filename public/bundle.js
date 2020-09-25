@@ -23766,7 +23766,8 @@ __webpack_require__.r(__webpack_exports__);
 const Method = {
   GET: `GET`,
   PUT: `PUT`,
-  POST: `POST`
+  POST: `POST`,
+  DELETE: `DELETE`
 };
 
 const SuccessHTTPStatusRange = {
@@ -23787,8 +23788,6 @@ class Api {
   }
 
   updateFilm(film) {
-    console.log(_model_movies_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer(film))
-    console.log(JSON.stringify(_model_movies_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer(film)))
     return this._load({
       url: `movies/${film.id}`,
       method: Method.PUT,
@@ -23797,6 +23796,30 @@ class Api {
     })
       .then(Api.toJSON)
       .then(_model_movies_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToClient);
+  }
+
+  getComments(film) {
+    return this._load({url: `comments/${film.id}`})
+      .then(Api.toJSON);
+  }
+
+  addComment(film, comment) {
+    return this._load({
+      url: `comments/${film.id}`,
+      method: Method.POST,
+      body: JSON.stringify(comment),
+      headers: new Headers({'Content-type': `application/json`})
+    })
+      .then(Api.toJSON)
+      .then((response) => response.movie)
+      .then(_model_movies_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToClient);
+  }
+
+  deleteComment(comment) {
+    return this._load({
+      url: `comments/${comment.id}`,
+      method: Method.DELETE
+    });
   }
 
   _load({
@@ -23808,8 +23831,8 @@ class Api {
     headers.append(`Authorization`, this._authorization);
 
     return fetch(
-      `${this._endPoint}/${url}`,
-      {method, body, headers}
+        `${this._endPoint}/${url}`,
+        {method, body, headers}
     )
       .then(Api.checkStatus)
       .catch(Api.catchError);
@@ -23853,118 +23876,47 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _view_footer_statistics_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./view/footer-statistics.js */ "./src/view/footer-statistics.js");
 /* harmony import */ var _model_movies_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./model/movies.js */ "./src/model/movies.js");
 /* harmony import */ var _model_filter_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./model/filter.js */ "./src/model/filter.js");
-/* harmony import */ var _mock_profile_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./mock/profile.js */ "./src/mock/profile.js");
-/* harmony import */ var _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./presenter/movie-list.js */ "./src/presenter/movie-list.js");
-/* harmony import */ var _presenter_filter_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./presenter/filter.js */ "./src/presenter/filter.js");
-/* harmony import */ var _api_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./api.js */ "./src/api.js");
+/* harmony import */ var _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./presenter/movie-list.js */ "./src/presenter/movie-list.js");
+/* harmony import */ var _presenter_filter_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./presenter/filter.js */ "./src/presenter/filter.js");
+/* harmony import */ var _api_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./api.js */ "./src/api.js");
 
 
 
 
 
 
-// import {randomFilms, QANTITY_FILMS} from './mock/films.js';
 
 
 
-
-
-const QUANTITY_FILMS = 20;
-
-const AUTHORIZATION = `Basic er883jdzbdw212wer`;
-const END_POINT = `https://12.ecmascript.pages.academy/cinemaddict`;
 
 const siteHeader = document.querySelector(`.header`);
 const siteMain = document.querySelector(`.main`);
-const siteFooter = document.querySelector(`.footer`);
-const footerStatistics = siteFooter.querySelector(`.footer__statistics`);
+const footerStatisticsContainer = document.querySelector(`.footer__statistics`);
 
-const api = new _api_js__WEBPACK_IMPORTED_MODULE_9__["default"](END_POINT, AUTHORIZATION);
+const api = new _api_js__WEBPACK_IMPORTED_MODULE_8__["default"](_variables_js__WEBPACK_IMPORTED_MODULE_0__["END_POINT"], _variables_js__WEBPACK_IMPORTED_MODULE_0__["AUTHORIZATION"]);
 
 const filterModel = new _model_filter_js__WEBPACK_IMPORTED_MODULE_5__["default"]();
 const moviesModel = new _model_movies_js__WEBPACK_IMPORTED_MODULE_4__["default"]();
 
-// moviesModel.setFilms(randomFilms);
+const profileView = new _view_profile_js__WEBPACK_IMPORTED_MODULE_2__["default"](moviesModel);
+Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_1__["render"])(siteHeader, profileView);
 
-Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_1__["render"])(siteHeader, new _view_profile_js__WEBPACK_IMPORTED_MODULE_2__["default"](_mock_profile_js__WEBPACK_IMPORTED_MODULE_6__["profileMock"]));
+const filterPresenter = new _presenter_filter_js__WEBPACK_IMPORTED_MODULE_7__["default"](siteMain, filterModel, moviesModel);
+const moviesPresenter = new _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_6__["default"](siteMain, moviesModel, filterModel, api, profileView);
 
-const filterPresenter = new _presenter_filter_js__WEBPACK_IMPORTED_MODULE_8__["default"](siteMain, moviesModel.getFilms(), filterModel, moviesModel);
-const movieList = new _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_7__["default"](siteMain, moviesModel, filterModel, QUANTITY_FILMS, api);
-
-
-if (QUANTITY_FILMS === 0) {
-  Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_1__["render"])(footerStatistics, new _view_footer_statistics_js__WEBPACK_IMPORTED_MODULE_3__["default"](0));
-} else {
-  Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_1__["render"])(footerStatistics, new _view_footer_statistics_js__WEBPACK_IMPORTED_MODULE_3__["default"](QUANTITY_FILMS));
-}
-
-filterPresenter.init(movieList);
-movieList.init();
+filterPresenter.init(moviesPresenter);
+moviesPresenter.init();
 
 api.getFilms()
   .then((films) => {
     moviesModel.setFilms(_variables_js__WEBPACK_IMPORTED_MODULE_0__["UpdateType"].INIT, films);
+    profileView.updateElement();
+    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_1__["render"])(footerStatisticsContainer, new _view_footer_statistics_js__WEBPACK_IMPORTED_MODULE_3__["default"](films.length));
   })
   .catch(() => {
     moviesModel.setFilms(_variables_js__WEBPACK_IMPORTED_MODULE_0__["UpdateType"].INIT, []);
+    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_1__["render"])(footerStatisticsContainer, new _view_footer_statistics_js__WEBPACK_IMPORTED_MODULE_3__["default"](0));
   });
-
-
-/***/ }),
-
-/***/ "./src/mock/profile.js":
-/*!*****************************!*\
-  !*** ./src/mock/profile.js ***!
-  \*****************************/
-/*! exports provided: profileMock */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "profileMock", function() { return profileMock; });
-/* harmony import */ var _variables_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../variables.js */ "./src/variables.js");
-
-
-const profileRatingTable = [
-  {
-    quantityFilms: 0,
-    rating: ``
-  },
-  {
-    quantityFilms: 1,
-    rating: `novice`
-  },
-  {
-    quantityFilms: 11,
-    rating: `fan`
-  },
-  {
-    quantityFilms: 21,
-    rating: `movie buff`
-  },
-  {
-    quantityFilms: _variables_js__WEBPACK_IMPORTED_MODULE_0__["QuantityFilms"].ALL_FILMS + 1
-  }
-];
-
-const getProfile = () => {
-  const profile = {
-    avatar: `bitmap@2x.png`,
-    watchedFilms: 25,
-    rating: ``,
-  };
-
-  for (let i = 0; i < profileRatingTable.length; i++) {
-    if (profile.watchedFilms >= profileRatingTable[i].quantityFilms && profile.watchedFilms < profileRatingTable[i + 1].quantityFilms) {
-      profile.rating = profileRatingTable[i].rating;
-      break;
-    }
-  }
-
-  return profile;
-};
-
-const profileMock = getProfile();
 
 
 /***/ }),
@@ -23983,9 +23935,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class Comments extends _utils_observer_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor(comments) {
+  constructor() {
     super();
-    this._comments = comments;
+    this._comments = [];
   }
 
   setComments(updateType, comments) {
@@ -24166,8 +24118,8 @@ class Movies extends _utils_observer_js__WEBPACK_IMPORTED_MODULE_0__["default"] 
           'user_details': {
             'watchlist': film.userDetails.watchlist,
             'favorite': film.userDetails.favorite,
-            'alreadyWatched': film.userDetails.already_watched,
-            'watchingDate': film.userDetails.watching_date
+            'already_watched': film.userDetails.alreadyWatched,
+            'watching_date': film.userDetails.watchingDate
           }
         }
     );
@@ -24176,7 +24128,7 @@ class Movies extends _utils_observer_js__WEBPACK_IMPORTED_MODULE_0__["default"] 
     delete adaptedFilm.userDetails;
 
     return adaptedFilm;
-  };
+  }
 }
 
 
@@ -24201,15 +24153,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
-
 class Comment {
-  constructor(film, commentsModel, moviesModel) {
+  constructor(film, commentsModel, moviesModel, api) {
     this._film = film;
     this._commentsModel = commentsModel;
     this._moviesModel = moviesModel;
-
-    this._selectedCommentEmoji = null;
+    this._api = api;
 
     this._renderComment = this._renderComment.bind(this);
     this._handleViewAction = this._handleViewAction.bind(this);
@@ -24218,6 +24167,8 @@ class Comment {
     this._handleAddComment = this._handleAddComment.bind(this);
     this._handeDeleteClick = this._handeDeleteClick.bind(this);
     this._getCommentEmojiInput = this._getCommentEmojiInput.bind(this);
+    this._changeDeleteButtonStatus = this._changeDeleteButtonStatus.bind(this);
+    this._changeAddPanelStatus = this._changeAddPanelStatus.bind(this);
   }
 
   init(container) {
@@ -24231,32 +24182,30 @@ class Comment {
     this._commentsListView = new _view_comments_list_js__WEBPACK_IMPORTED_MODULE_1__["default"](this._film, this._userInputText, this._userInputEmoji);
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["render"])(this._container, this._commentsListView);
 
-    this._commentsListView.setCommentEmojiClickHandler((emojiType) => {
-      this._userInputEmoji = this._getCommentEmojiInput(emojiType);
-    });
+    this._commentsListView.setCommentEmojiClickHandler(this._getCommentEmojiInput);
 
     this._commentsListView.setCommentInputHandler((value) => {
       this._userInputText = value;
     });
 
-    const comments = this._commentsModel.getComments();
+    this._addCommentPanel = this._commentsListView.getElement().querySelector(`.film-details__new-comment`);
 
-    this._commentsFilm = [];
+    this._comments = this._commentsModel.getComments();
 
-    for (let i = 0; i < comments.length; i++) {
-      this._renderComment(i, comments[i]);
-    }
+    this._commentsFilm = {};
 
-    document.addEventListener(`keydown`, this._handleAddComment);
+    this._renderComment();
+
+    this._commentsListView.setAddCommentHandler(this._handleAddComment);
   }
 
-  _renderComment(i, comment) {
-    this._commentsFilm[i] = new _view_comment_js__WEBPACK_IMPORTED_MODULE_0__["default"](comment);
-
-    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["render"])(this._commentsListView.getElement().querySelector(`.film-details__comments-list`), this._commentsFilm[i]);
-
-    this._commentsFilm[i].setDeleteCommentHandler(() => {
-      this._handeDeleteClick(this._commentsFilm[i]);
+  _renderComment() {
+    this._comments.forEach((comment) => {
+      this._commentsFilm[comment.id] = new _view_comment_js__WEBPACK_IMPORTED_MODULE_0__["default"](comment);
+      Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["render"])(this._commentsListView.getElement().querySelector(`.film-details__comments-list`), this._commentsFilm[comment.id]);
+      this._commentsFilm[comment.id].setDeleteCommentHandler(() => {
+        this._handeDeleteClick(this._commentsFilm[comment.id]);
+      });
     });
   }
 
@@ -24267,20 +24216,7 @@ class Comment {
 
     const emojiAddContainer = this._commentsListView.getElement().querySelector(`.film-details__add-emoji-label`);
 
-    switch (emojiType) {
-      case _variables_js__WEBPACK_IMPORTED_MODULE_3__["EmojiType"].SMILE:
-        this._userInputEmoji = `<img src="images/emoji/${_variables_js__WEBPACK_IMPORTED_MODULE_3__["EmojiType"].SMILE.replace(`emoji-`, ``)}.png" width="55" height="55" alt="${emojiType}">`;
-        break;
-      case _variables_js__WEBPACK_IMPORTED_MODULE_3__["EmojiType"].SLEEPING:
-        this._userInputEmoji = `<img src="images/emoji/${_variables_js__WEBPACK_IMPORTED_MODULE_3__["EmojiType"].SLEEPING.replace(`emoji-`, ``)}.png" width="55" height="55" alt="${emojiType}">`;
-        break;
-      case _variables_js__WEBPACK_IMPORTED_MODULE_3__["EmojiType"].PUKE:
-        this._userInputEmoji = `<img src="images/emoji/${_variables_js__WEBPACK_IMPORTED_MODULE_3__["EmojiType"].PUKE.replace(`emoji-`, ``)}.png" width="55" height="55" alt="${emojiType}">`;
-        break;
-      case _variables_js__WEBPACK_IMPORTED_MODULE_3__["EmojiType"].ANGRY:
-        this._userInputEmoji = `<img src="images/emoji/${_variables_js__WEBPACK_IMPORTED_MODULE_3__["EmojiType"].ANGRY.replace(`emoji-`, ``)}.png" width="55" height="55" alt="${emojiType}">`;
-        break;
-    }
+    this._userInputEmoji = `<img src="images/emoji/${emojiType.replace(`emoji-`, ``)}.png" width="55" height="55" alt="${emojiType}">`;
 
     emojiAddContainer.innerHTML = this._userInputEmoji;
 
@@ -24293,22 +24229,15 @@ class Comment {
     return evt.target.value;
   }
 
-  getCommentsListView() {
-    return this._commentsListView;
-  }
-
   _getSelectedCommentEmoji() {
     if (this._selectedCommentEmoji === null) {
       return ``;
-    } else {
-      return this._selectedCommentEmoji.replace(`emoji-`, ``);
     }
+    return this._selectedCommentEmoji.replace(`emoji-`, ``);
   }
 
   _getNewComment(evt) {
     return {
-      id: generateId(),
-      author: `AD-42`,
       comment: this._getCommentTextInput(evt),
       date: new Date(),
       emotion: this._getSelectedCommentEmoji(),
@@ -24316,32 +24245,71 @@ class Comment {
   }
 
   _handleAddComment(evt) {
-    if (evt.ctrlKey && evt.keyCode === 13) {
+    if (evt.ctrlKey && evt.keyCode === _variables_js__WEBPACK_IMPORTED_MODULE_3__["KeyCode"].ENTER) {
       if (this._getNewComment(evt).emotion === `` || this._getNewComment(evt).comment === ``) {
+        Object(_variables_js__WEBPACK_IMPORTED_MODULE_3__["shakeEffect"])(this._commentsListView.getElement().querySelector(`.film-details__new-comment`));
         return;
       }
+
+      this._changeAddPanelStatus(`inactive`);
 
       this._handleViewAction(_variables_js__WEBPACK_IMPORTED_MODULE_3__["UserAction"].ADD_COMMENT, this._getNewComment(evt));
     }
   }
 
   _handeDeleteClick(comment) {
+    this._changeDeleteButtonStatus(comment, `inactive`);
     this._handleViewAction(_variables_js__WEBPACK_IMPORTED_MODULE_3__["UserAction"].DELETE_COMMENT, comment.getComment());
-    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["remove"])(comment);
+  }
+
+  _changeDeleteButtonStatus(commentView, status) {
+    if (status === `active`) {
+      commentView.getElement().querySelector(`.film-details__comment-delete`).removeAttribute(`disabled`);
+      commentView.getElement().querySelector(`.film-details__comment-delete`).textContent = `Delete`;
+    }
+
+    if (status === `inactive`) {
+      commentView.getElement().querySelector(`.film-details__comment-delete`).setAttribute(`disabled`, `disabled`);
+      commentView.getElement().querySelector(`.film-details__comment-delete`).textContent = `Deleting...`;
+    }
+  }
+
+  _changeAddPanelStatus(status) {
+    if (status === `active`) {
+      this._addCommentPanel.querySelector(`.film-details__comment-input`).removeAttribute(`disabled`);
+      this._commentsListView.setCommentEmojiClickHandler(this._getCommentEmojiInput);
+    }
+
+    if (status === `inactive`) {
+      this._addCommentPanel.querySelector(`.film-details__comment-input`).setAttribute(`disabled`, `disabled`);
+      this._commentsListView.removeCommentEmojiClickHandler();
+    }
   }
 
   _handleViewAction(actionType, update, updateType = _variables_js__WEBPACK_IMPORTED_MODULE_3__["UpdateType"].PATCH) {
 
     switch (actionType) {
       case _variables_js__WEBPACK_IMPORTED_MODULE_3__["UserAction"].ADD_COMMENT:
-        this._commentsModel.addComment(updateType, update);
-        this._film.comments = this._commentsModel.getComments();
-        this._moviesModel.updateFilm(updateType, this._film);
+        this._api.addComment(this._film, update)
+          .then((response) => {
+            this._moviesModel.updateFilm(updateType, response);
+          })
+          .catch(() => {
+            this._changeAddPanelStatus(`active`);
+            Object(_variables_js__WEBPACK_IMPORTED_MODULE_3__["shakeEffect"])(this._addCommentPanel);
+          });
         break;
       case _variables_js__WEBPACK_IMPORTED_MODULE_3__["UserAction"].DELETE_COMMENT:
-        this._commentsModel.deleteComment(updateType, update);
-        this._film.comments = this._commentsModel.getComments();
-        this._moviesModel.updateFilm(updateType, this._film);
+        this._api.deleteComment(update)
+          .then(() => {
+            const commentId = this._film.comments.findIndex((id) => id === update.id);
+            this._film.comments.splice(commentId, 1);
+            this._moviesModel.updateFilm(updateType, this._film);
+          })
+          .catch(() => {
+            this._changeDeleteButtonStatus(this._commentsFilm[update.id], `active`);
+            Object(_variables_js__WEBPACK_IMPORTED_MODULE_3__["shakeEffect"])(this._commentsFilm[update.id].getElement());
+          });
         break;
     }
   }
@@ -24372,9 +24340,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class Filter {
-  constructor(container, films, filterModel, moviesModel) {
+  constructor(container, filterModel, moviesModel) {
     this._container = container;
-    this._films = films;
     this._filterModel = filterModel;
     this._moviesModel = moviesModel;
 
@@ -24427,16 +24394,16 @@ class Filter {
 
   _countFilters() {
     return {
-      watchlist: _utils_filter_js__WEBPACK_IMPORTED_MODULE_4__["filter"].WATCHLIST(this._moviesModel.getFilms()).length,
-      favorites: _utils_filter_js__WEBPACK_IMPORTED_MODULE_4__["filter"].FAVORITES(this._moviesModel.getFilms()).length,
-      history: _utils_filter_js__WEBPACK_IMPORTED_MODULE_4__["filter"].HISTORY(this._moviesModel.getFilms()).length,
+      watchlist: _utils_filter_js__WEBPACK_IMPORTED_MODULE_4__["filter"][_variables_js__WEBPACK_IMPORTED_MODULE_3__["FilterType"].WATCHLIST](this._moviesModel.getFilms()).length,
+      favorites: _utils_filter_js__WEBPACK_IMPORTED_MODULE_4__["filter"][_variables_js__WEBPACK_IMPORTED_MODULE_3__["FilterType"].FAVORITES](this._moviesModel.getFilms()).length,
+      history: _utils_filter_js__WEBPACK_IMPORTED_MODULE_4__["filter"][_variables_js__WEBPACK_IMPORTED_MODULE_3__["FilterType"].HISTORY](this._moviesModel.getFilms()).length,
     };
   }
 
   _showStatisticsHandler() {
     this._moviePresenter.hideMovieList();
 
-    this._statisticsComponent = new _view_statistics_js__WEBPACK_IMPORTED_MODULE_1__["default"](this._films, this._container);
+    this._statisticsComponent = new _view_statistics_js__WEBPACK_IMPORTED_MODULE_1__["default"](this._moviesModel.getFilms(), this._container);
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["render"])(this._container, this._statisticsComponent);
 
     this._filterComponent.removeStatisticsClickHandler();
@@ -24476,15 +24443,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_sort_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/sort.js */ "./src/utils/sort.js");
 /* harmony import */ var _utils_filter_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/filter.js */ "./src/utils/filter.js");
 /* harmony import */ var _movie_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./movie.js */ "./src/presenter/movie.js");
-/* harmony import */ var _comments_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./comments.js */ "./src/presenter/comments.js");
-/* harmony import */ var _model_comments_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../model/comments.js */ "./src/model/comments.js");
 
 
 
 
-
-
-// import {QANTITY_FILMS} from '../mock/films.js';
 
 
 
@@ -24493,19 +24455,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class MovieList {
-  constructor(container, moviesModel, filterModel, quantityAllFilms, api) {
+  constructor(container, moviesModel, filterModel, api, profileView) {
     this._container = container;
     this._moviesModel = moviesModel;
     this._filterModel = filterModel;
     this._api = api;
+    this._profileView = profileView;
 
     this._isLoading = true;
 
     this._quantityRenderFilms = _variables_js__WEBPACK_IMPORTED_MODULE_0__["QuantityFilms"].FILMS;
-    this._quantityRenderExtraFilms = _variables_js__WEBPACK_IMPORTED_MODULE_0__["QuantityFilms"].EXTRA_FILMS;
-    this._quantityExtraCategories = _variables_js__WEBPACK_IMPORTED_MODULE_0__["QuantityFilms"].EXTRA_CATEGORIES;
     this._showingFilmsCount = this._quantityRenderFilms;
-    this._quantityAllFilms = quantityAllFilms;
 
     this._filmsContainerComponent = new _view_films_container_js__WEBPACK_IMPORTED_MODULE_2__["default"]();
     this._noDataComponent = new _view_no_data_js__WEBPACK_IMPORTED_MODULE_4__["default"]();
@@ -24516,7 +24476,6 @@ class MovieList {
 
     this._currentSortType = _variables_js__WEBPACK_IMPORTED_MODULE_0__["SortType"].DEFAULT;
     this._moviesCards = {};
-    this._commentsFilms = {};
 
     this._renderFilmsList = this._renderFilmsList.bind(this);
     this._renderFilm = this._renderFilm.bind(this);
@@ -24541,8 +24500,6 @@ class MovieList {
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["render"])(this._container, this._filmsContainerComponent);
 
     this._filmsList = this._container.querySelector(`.films-list`);
-    this._filmsListExtraRated = this._container.querySelectorAll(`.films-list--extra-rated`);
-    this._filmsListExtraComments = this._container.querySelectorAll(`.films-list--extra-comments`);
   }
 
   _renderShowMoreButton() {
@@ -24556,14 +24513,10 @@ class MovieList {
   }
 
   _renderFilm(film) {
-    const commentsModel = new _model_comments_js__WEBPACK_IMPORTED_MODULE_11__["default"](film.comments);
-
-    const moviePresenter = new _movie_js__WEBPACK_IMPORTED_MODULE_9__["default"](this._handleViewAction);
-    const commentsPresenter = new _comments_js__WEBPACK_IMPORTED_MODULE_10__["default"](film, commentsModel, this._moviesModel);
+    const moviePresenter = new _movie_js__WEBPACK_IMPORTED_MODULE_9__["default"](this._handleViewAction, this._moviesModel, this._api);
     this._moviesCards[film.id] = moviePresenter;
-    this._commentsFilms[film.id] = commentsPresenter;
 
-    this._moviesCards[film.id].init(film, this._filmsList.querySelector(`.films-list__container`), this._clearFilmsDetails, this._commentsFilms[film.id]);
+    this._moviesCards[film.id].init(film, this._filmsList.querySelector(`.films-list__container`), this._clearFilmsDetails);
   }
 
   _renderFilms(films) {
@@ -24587,7 +24540,6 @@ class MovieList {
   _getFilms() {
     const filterType = this._filterModel.getFilter();
     const films = this._moviesModel.getFilms();
-    console.log(films)
     const filteredFilms = _utils_filter_js__WEBPACK_IMPORTED_MODULE_8__["filter"][filterType](films);
 
     switch (this._currentSortType) {
@@ -24625,28 +24577,25 @@ class MovieList {
   }
 
   _clearFilmsDetails() {
-    Object.values(this._moviesCards).forEach((elem) => elem.destroyFilmDetails());
+    Object.values(this._moviesCards).forEach((elem) => {
+      elem.destroyFilmDetails();
+    });
   }
 
-  _handleViewAction(updateType, update) {
-    // this._moviesModel.updateFilm(updateType, updateFilm);
-    // console.log(updateFilm)
-    // console.log(this._api.updateFilm(updateFilm))
-    const test = this._api.updateFilm(update);
-    console.log(test);
-    // this._api.updateFilm(updateFilm).then((response) => {
-    //   console.log(response)
-    //   this._moviesModel.updateFilm(updateType, response);
-    // });
+  _handleViewAction(updateType, updateFilm) {
+    this._api.updateFilm(updateFilm).then((response) => {
+      this._moviesModel.updateFilm(updateType, response);
+    });
   }
 
   _handleModelEvent(updateType, update) {
     switch (updateType) {
       case _variables_js__WEBPACK_IMPORTED_MODULE_0__["UpdateType"].PATCH:
         this._clearFilmsDetails();
-        this._moviesCards[update.id].init(update, this._filmsList.querySelector(`.films-list__container`), this._clearFilmsDetails, this._commentsFilms[update.id]);
+        this._moviesCards[update.id].init(update, this._filmsList.querySelector(`.films-list__container`), this._clearFilmsDetails);
         break;
       case _variables_js__WEBPACK_IMPORTED_MODULE_0__["UpdateType"].MINOR:
+        this._profileView.updateElement();
         const popupStatus = this._moviesCards[update.id].popupStatus;
 
         this._clearBoard();
@@ -24692,7 +24641,7 @@ class MovieList {
   }
 
   _renderBoard({renderSort = false} = {}) {
-    if(this._isLoading) {
+    if (this._isLoading) {
       Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["render"])(this._container, this._loadingComponent);
       return;
     }
@@ -24740,14 +24689,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _view_film_details_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../view/film-details.js */ "./src/view/film-details.js");
 /* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/render.js */ "./src/utils/render.js");
 /* harmony import */ var _variables_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../variables.js */ "./src/variables.js");
+/* harmony import */ var _comments_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./comments.js */ "./src/presenter/comments.js");
+/* harmony import */ var _model_comments_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../model/comments.js */ "./src/model/comments.js");
+
+
 
 
 
 
 
 class Movie {
-  constructor(changeData) {
+  constructor(changeData, moviesModel, api) {
     this._changeData = changeData;
+    this._moviesModel = moviesModel;
+    this._api = api;
+
     this.popupStatus = false;
 
     this._filmCardComponent = null;
@@ -24758,9 +24714,11 @@ class Movie {
     this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
     this._handleWatchedClick = this._handleWatchedClick.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._closePopupHandler = this._closePopupHandler.bind(this);
+    this._closePopupKeydownHandler = this._closePopupKeydownHandler.bind(this);
   }
 
-  init(film, container, clearPopupFilm, commentsPresenter) {
+  init(film, container, clearPopupFilm) {
     this._film = film;
     this._container = container;
 
@@ -24768,8 +24726,6 @@ class Movie {
 
     this._filmCardComponent = new _view_film_card_js__WEBPACK_IMPORTED_MODULE_0__["default"](this._film);
     this._filmDetailsComponent = new _view_film_details_js__WEBPACK_IMPORTED_MODULE_1__["default"](this._film);
-
-    this._commentPresenter = commentsPresenter;
 
     this._filmCardComponent.setClickHandler(() => {
       clearPopupFilm();
@@ -24802,41 +24758,46 @@ class Movie {
 
     const commentsContainer = this._filmDetailsComponent.getElement().querySelector(`.form-details__bottom-container`);
 
-    this._commentPresenter.init(commentsContainer);
+    const commentsModel = new _model_comments_js__WEBPACK_IMPORTED_MODULE_5__["default"]();
+
+    this._api.getComments(this._film).then((response) => {
+      commentsModel.setComments(``, response);
+      const commentsPresenter = new _comments_js__WEBPACK_IMPORTED_MODULE_4__["default"](this._film, commentsModel, this._moviesModel, this._api);
+
+      commentsPresenter.init(commentsContainer);
+    });
 
     this.popupStatus = true;
 
     this._closePopupFilm();
   }
 
+  _closePopupHandler() {
+    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["remove"])(this._filmDetailsComponent);
+    document.removeEventListener(`keydown`, this._closePopupKeydownHandler);
+    this.popupStatus = false;
+
+    this._userInputText = ``;
+    this._userInputEmoji = ``;
+  }
+
+  _closePopupKeydownHandler(evt) {
+    if (evt.keyCode === _variables_js__WEBPACK_IMPORTED_MODULE_3__["KeyCode"].ESC) {
+      this._closePopupHandler();
+    }
+  }
+
   _closePopupFilm() {
-    const closePopupKeydown = (evt) => {
-      if (evt.keyCode === 27) {
-        Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["remove"])(this._filmDetailsComponent);
-        document.removeEventListener(`keydown`, closePopupKeydown);
-        this.popupStatus = false;
-
-        this._userInputText = ``;
-        this._userInputEmoji = ``;
-      }
-    };
-
     this._filmDetailsComponent.setClickHandler(() => {
-      Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["remove"])(this._filmDetailsComponent);
-      document.removeEventListener(`keydown`, closePopupKeydown);
-      this.popupStatus = false;
-
-      this._userInputText = ``;
-      this._userInputEmoji = ``;
+      this._closePopupHandler();
     });
 
-    document.addEventListener(`keydown`, closePopupKeydown);
+    document.addEventListener(`keydown`, this._closePopupKeydownHandler);
   }
 
   _handleWatchlistClick() {
     this._film.userDetails.watchlist = !this._film.userDetails.watchlist;
 
-    console.log(this._film)
     this._changeData(_variables_js__WEBPACK_IMPORTED_MODULE_3__["UpdateType"].MINOR, this._film);
   }
 
@@ -24853,10 +24814,12 @@ class Movie {
   }
 
   destroyFilmDetails() {
+    document.removeEventListener(`keydown`, this._closePopupKeydownHandler);
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["remove"])(this._filmDetailsComponent);
   }
 
   destroy() {
+    document.removeEventListener(`keydown`, this._closePopupKeydownHandler);
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["remove"])(this._filmCardComponent);
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_2__["remove"])(this._filmDetailsComponent);
   }
@@ -24880,10 +24843,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const filter = {
-  [_variables_js__WEBPACK_IMPORTED_MODULE_0__["FilterType"].ALL]: (films) => films.slice(),
-  [_variables_js__WEBPACK_IMPORTED_MODULE_0__["FilterType"].WATCHLIST]: (films) => films.filter((film) => film.userDetails.watchlist),
-  [_variables_js__WEBPACK_IMPORTED_MODULE_0__["FilterType"].HISTORY]: (films) => films.filter((film) => film.userDetails.alreadyWatched),
-  [_variables_js__WEBPACK_IMPORTED_MODULE_0__["FilterType"].FAVORITES]: (films) => films.filter((film) => film.userDetails.favorite),
+  [_variables_js__WEBPACK_IMPORTED_MODULE_0__["FilterType"][`ALL`]]: (films) => films.slice(),
+  [_variables_js__WEBPACK_IMPORTED_MODULE_0__["FilterType"][`WATCHLIST`]]: (films) => films.filter((film) => film.userDetails.watchlist),
+  [_variables_js__WEBPACK_IMPORTED_MODULE_0__["FilterType"][`HISTORY`]]: (films) => films.filter((film) => film.userDetails.alreadyWatched),
+  [_variables_js__WEBPACK_IMPORTED_MODULE_0__["FilterType"][`FAVORITES`]]: (films) => films.filter((film) => film.userDetails.favorite),
 };
 
 
@@ -24916,6 +24879,39 @@ class Observer {
     this._observers.forEach((observer) => observer(event, payload));
   }
 }
+
+
+/***/ }),
+
+/***/ "./src/utils/profile.js":
+/*!******************************!*\
+  !*** ./src/utils/profile.js ***!
+  \******************************/
+/*! exports provided: getProfileRating */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getProfileRating", function() { return getProfileRating; });
+/* harmony import */ var _filter_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./filter.js */ "./src/utils/filter.js");
+/* harmony import */ var _variables_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../variables.js */ "./src/variables.js");
+
+
+
+const getProfileRating = (films) => {
+  const watchedFilmsCount = _filter_js__WEBPACK_IMPORTED_MODULE_0__["filter"][_variables_js__WEBPACK_IMPORTED_MODULE_1__["FilterType"].HISTORY](films).length;
+
+  switch (true) {
+    case (watchedFilmsCount >= _variables_js__WEBPACK_IMPORTED_MODULE_1__["ProfileRanks"].NOVICE && watchedFilmsCount < _variables_js__WEBPACK_IMPORTED_MODULE_1__["ProfileRanks"].FAN):
+      return `novice`;
+    case (watchedFilmsCount >= _variables_js__WEBPACK_IMPORTED_MODULE_1__["ProfileRanks"].FAN && watchedFilmsCount < _variables_js__WEBPACK_IMPORTED_MODULE_1__["ProfileRanks"].MOVIE_BUFF):
+      return `fan`;
+    case (watchedFilmsCount >= _variables_js__WEBPACK_IMPORTED_MODULE_1__["ProfileRanks"].MOVIE_BUFF):
+      return `movie buff`;
+    default:
+      return ``;
+  }
+};
 
 
 /***/ }),
@@ -24978,7 +24974,7 @@ const replace = (newChild, oldChild) => {
 
   const parent = oldChild.parentElement;
 
-  if (parent === null || oldChild === null || newChild === null) {
+  if (parent === null || newChild === null) {
     throw new Error(`Can't replace unexisting elements`);
   }
 
@@ -25048,11 +25044,11 @@ const getAllGenres = (films) => {
   const allGenres = [];
   films.map((film) => allGenres.push(film.filmInfo.genre));
 
-  const countGenres = allGenres.flat().reduce((a, c) => {
-    a[c] = a[c] || 0;
-    a[c]++;
+  const countGenres = allGenres.flat().reduce((accumulator, genre) => {
+    accumulator[genre] = accumulator[genre] || 0;
+    accumulator[genre]++;
 
-    return a;
+    return accumulator;
   }, {});
 
   return countGenres;
@@ -25061,21 +25057,16 @@ const getAllGenres = (films) => {
 const getTopGenre = (films) => {
   const genresCountObject = getAllGenres(films);
 
+  if (Object.keys(genresCountObject).length === 0) {
+    return ``;
+  }
+
   const maxCount = Math.max(...Object.values(genresCountObject));
 
-  const topGenre = ((obj, value) => {
-    return Object.keys(obj)[Object.values(obj).indexOf(value)];
-  });
+  const topGenre = Object.keys(genresCountObject)[Object.values(genresCountObject).indexOf(maxCount)];
 
-  return topGenre(genresCountObject, maxCount);
+  return topGenre;
 };
-
-// export const getCurrentDate = () => {
-//   const currentDate = new Date();
-//   currentDate.setHours(23, 59, 59, 999);
-
-//   return new Date(currentDate);
-// };
 
 
 /***/ }),
@@ -25084,13 +25075,12 @@ const getTopGenre = (films) => {
 /*!***************************!*\
   !*** ./src/utils/util.js ***!
   \***************************/
-/*! exports provided: getRandomNumber, getRandomBoolean, setFormatTimeDuration, setFormatReleaseDate, setFormatCommentDate */
+/*! exports provided: getRandomNumber, setFormatTimeDuration, setFormatReleaseDate, setFormatCommentDate */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomNumber", function() { return getRandomNumber; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomBoolean", function() { return getRandomBoolean; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setFormatTimeDuration", function() { return setFormatTimeDuration; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setFormatReleaseDate", function() { return setFormatReleaseDate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setFormatCommentDate", function() { return setFormatCommentDate; });
@@ -25101,14 +25091,6 @@ __webpack_require__.r(__webpack_exports__);
 const getRandomNumber = (min, max, fractional = 0) => {
   const randomNumber = min + Math.random() * (max - min);
   return randomNumber.toFixed(fractional);
-};
-
-const getRandomBoolean = () => {
-  if (getRandomNumber(0, 1) === `1`) {
-    return true;
-  } else {
-    return false;
-  }
 };
 
 const setFormatTimeDuration = (time) => {
@@ -25134,18 +25116,35 @@ const setFormatCommentDate = (date) => {
 /*!**************************!*\
   !*** ./src/variables.js ***!
   \**************************/
-/*! exports provided: QuantityFilms, SortType, EmojiType, UpdateType, UserAction, FilterType, StatisticsPeriod */
+/*! exports provided: AUTHORIZATION, END_POINT, SHAKE_ANIMATION_TIMEOUT, SHORT_DESCRIPTION, KeyCode, QuantityFilms, ProfileRanks, SortType, UpdateType, UserAction, FilterType, StatisticsPeriod, shakeEffect */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AUTHORIZATION", function() { return AUTHORIZATION; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "END_POINT", function() { return END_POINT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SHAKE_ANIMATION_TIMEOUT", function() { return SHAKE_ANIMATION_TIMEOUT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SHORT_DESCRIPTION", function() { return SHORT_DESCRIPTION; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "KeyCode", function() { return KeyCode; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "QuantityFilms", function() { return QuantityFilms; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ProfileRanks", function() { return ProfileRanks; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SortType", function() { return SortType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EmojiType", function() { return EmojiType; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UpdateType", function() { return UpdateType; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UserAction", function() { return UserAction; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FilterType", function() { return FilterType; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StatisticsPeriod", function() { return StatisticsPeriod; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "shakeEffect", function() { return shakeEffect; });
+const AUTHORIZATION = `Basic er883jdzbdw212weragadfg`;
+const END_POINT = `https://12.ecmascript.pages.academy/cinemaddict`;
+const SHAKE_ANIMATION_TIMEOUT = 600;
+
+const SHORT_DESCRIPTION = 140;
+
+const KeyCode = {
+  ESC: 27,
+  ENTER: 13
+};
+
 const QuantityFilms = {
   ALL_FILMS: 100000,
   FILMS: 5,
@@ -25153,17 +25152,16 @@ const QuantityFilms = {
   EXTRA_CATEGORIES: 2,
 };
 
+const ProfileRanks = {
+  NOVICE: 1,
+  FAN: 11,
+  MOVIE_BUFF: 21,
+};
+
 const SortType = {
   DEFAULT: `default`,
   DATE: `date`,
   RATING: `rating`,
-};
-
-const EmojiType = {
-  SMILE: `emoji-smile`,
-  SLEEPING: `emoji-sleeping`,
-  PUKE: `emoji-puke`,
-  ANGRY: `emoji-angry`,
 };
 
 const UpdateType = {
@@ -25179,10 +25177,10 @@ const UserAction = {
 };
 
 const FilterType = {
-  ALL: `ALL`,
-  WATCHLIST: `WATCHLIST`,
-  HISTORY: `HISTORY`,
-  FAVORITES: `FAVORITES`,
+  [`ALL`]: `all`,
+  [`WATCHLIST`]: `watchlist`,
+  [`HISTORY`]: `history`,
+  [`FAVORITES`]: `favorites`,
 };
 
 const StatisticsPeriod = {
@@ -25191,6 +25189,13 @@ const StatisticsPeriod = {
   WEEK: `week`,
   MONTH: `month`,
   YEAR: `year`,
+};
+
+const shakeEffect = (element) => {
+  element.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+  setTimeout(() => {
+    element.style.animation = ``;
+  }, SHAKE_ANIMATION_TIMEOUT);
 };
 
 
@@ -25233,6 +25238,17 @@ class Abstract {
 
   removeElement() {
     this._element = null;
+  }
+
+  updateElement() {
+    let prevElement = this.getElement();
+    const parent = prevElement.parentElement;
+    this.removeElement();
+
+    const newElement = this.getElement();
+
+    parent.replaceChild(newElement, prevElement);
+    prevElement = null;
   }
 }
 
@@ -25321,7 +25337,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _abstract_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract.js */ "./src/view/abstract.js");
 
 
-const createCommentsListTemplate = (film, userInputText, userInputEmoji) => {
+const createCommentsListTemplate = (film, userInputText, userInputEmoji, isDisabled) => {
   return (
     `<section class="film-details__comments-wrap">
       <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${film.comments.length}</span></h3>
@@ -25334,26 +25350,26 @@ const createCommentsListTemplate = (film, userInputText, userInputEmoji) => {
         <div for="add-emoji" class="film-details__add-emoji-label">${userInputEmoji}</div>
 
         <label class="film-details__comment-label">
-          <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${userInputText}</textarea>
+          <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? `disabled` : ``}>${userInputText}</textarea>
         </label>
 
         <div class="film-details__emoji-list">
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
+          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${isDisabled ? `disabled` : ``}>
           <label class="film-details__emoji-label" for="emoji-smile">
             <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
           </label>
 
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
+          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${isDisabled ? `disabled` : ``}>
           <label class="film-details__emoji-label" for="emoji-sleeping">
             <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
           </label>
 
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
+          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${isDisabled ? `disabled` : ``}>
           <label class="film-details__emoji-label" for="emoji-puke">
             <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
           </label>
 
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
+          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${isDisabled ? `disabled` : ``}>
           <label class="film-details__emoji-label" for="emoji-angry">
             <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
           </label>
@@ -25364,18 +25380,20 @@ const createCommentsListTemplate = (film, userInputText, userInputEmoji) => {
 };
 
 class CommentsList extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor(film, userInputText, userInputEmoji) {
+  constructor(film, userInputText, userInputEmoji, disabledStatus) {
     super();
     this._film = film;
     this._userInputText = userInputText;
     this._userInputEmoji = userInputEmoji;
+    this._disabledStatus = disabledStatus;
 
     this._commentEmojiClickHandler = this._commentEmojiClickHandler.bind(this);
     this._commentInputHandler = this._commentInputHandler.bind(this);
+    this._addCommentHandler = this._addCommentHandler.bind(this);
   }
 
   _getTemplate() {
-    return createCommentsListTemplate(this._film, this._userInputText, this._userInputEmoji);
+    return createCommentsListTemplate(this._film, this._userInputText, this._userInputEmoji, this._disabledStatus);
   }
 
   _commentEmojiClickHandler(evt) {
@@ -25387,8 +25405,16 @@ class CommentsList extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] 
     this._callback.commentEmojiClick = callback;
     const emojies = this.getElement().querySelectorAll(`.film-details__emoji-label`);
 
-    for (let elem of emojies) {
+    for (const elem of emojies) {
       elem.addEventListener(`click`, this._commentEmojiClickHandler);
+    }
+  }
+
+  removeCommentEmojiClickHandler() {
+    const emojies = this.getElement().querySelectorAll(`.film-details__emoji-label`);
+
+    for (const elem of emojies) {
+      elem.removeEventListener(`click`, this._commentEmojiClickHandler);
     }
   }
 
@@ -25399,6 +25425,15 @@ class CommentsList extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] 
   setCommentInputHandler(callback) {
     this._callback.commentInput = callback;
     this.getElement().querySelector(`.film-details__comment-input`).addEventListener(`input`, this._commentInputHandler);
+  }
+
+  _addCommentHandler(evt) {
+    this._callback.addComment(evt);
+  }
+
+  setAddCommentHandler(callback) {
+    this._callback.addComment = callback;
+    this.getElement().querySelector(`.film-details__comment-input`).addEventListener(`keydown`, this._addCommentHandler);
   }
 }
 
@@ -25417,11 +25452,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return FilmCard; });
 /* harmony import */ var _abstract_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract.js */ "./src/view/abstract.js");
 /* harmony import */ var _utils_util_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/util.js */ "./src/utils/util.js");
+/* harmony import */ var _variables_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../variables.js */ "./src/variables.js");
+
 
 
 
 const createFilmCardTemplate = (film) => {
-  const shortDescription = film.filmInfo.description.length > 140 ? film.filmInfo.description.slice(0, 140) + `...` : film.filmInfo.description;
+  const shortDescription = film.filmInfo.description.length > _variables_js__WEBPACK_IMPORTED_MODULE_2__["SHORT_DESCRIPTION"] ? film.filmInfo.description.slice(0, _variables_js__WEBPACK_IMPORTED_MODULE_2__["SHORT_DESCRIPTION"]) + `...` : film.filmInfo.description;
 
   return (
     `<article class="film-card">
@@ -25906,25 +25943,29 @@ class NoData extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Profile; });
 /* harmony import */ var _abstract_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract.js */ "./src/view/abstract.js");
+/* harmony import */ var _utils_profile_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/profile.js */ "./src/utils/profile.js");
 
 
-const createProfileTemplate = (profile) => {
+
+const createProfileTemplate = (films) => {
+  const profileRating = Object(_utils_profile_js__WEBPACK_IMPORTED_MODULE_1__["getProfileRating"])(films);
+
   return (
     `<section class="header__profile profile">
-      <p class="profile__rating">${profile.rating}</p>
-      <img class="profile__avatar" src="images/${profile.avatar}" alt="Avatar" width="35" height="35">
+      <p class="profile__rating">${profileRating}</p>
+      <img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
     </section>`
   );
 };
 
 class Profile extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor(profile) {
+  constructor(moviesModel) {
     super();
-    this._profile = profile;
+    this._moviesModel = moviesModel;
   }
 
   _getTemplate() {
-    return createProfileTemplate(this._profile);
+    return createProfileTemplate(this._moviesModel.getFilms());
   }
 }
 
@@ -26045,9 +26086,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var chartjs_plugin_datalabels__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! chartjs-plugin-datalabels */ "./node_modules/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.js");
 /* harmony import */ var chartjs_plugin_datalabels__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(chartjs_plugin_datalabels__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _utils_statistics_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/statistics.js */ "./src/utils/statistics.js");
-/* harmony import */ var _mock_profile_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../mock/profile.js */ "./src/mock/profile.js");
-/* harmony import */ var _variables_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../variables.js */ "./src/variables.js");
-/* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/render.js */ "./src/utils/render.js");
+/* harmony import */ var _variables_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../variables.js */ "./src/variables.js");
+/* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/render.js */ "./src/utils/render.js");
+/* harmony import */ var _utils_profile_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/profile.js */ "./src/utils/profile.js");
 
 
 
@@ -26122,8 +26163,9 @@ const renderGenresChart = (statisticCtx, films) => {
   });
 };
 
-const createStatisticsTemplate = (data) => {
+const createStatisticsTemplate = (data, films) => {
   const alreadyWatched = data.watchedFilms;
+  const profileRating = Object(_utils_profile_js__WEBPACK_IMPORTED_MODULE_7__["getProfileRating"])(films);
 
   const totalDuration = Object(_utils_statistics_js__WEBPACK_IMPORTED_MODULE_4__["getTotalFilmsDuration"])(alreadyWatched);
 
@@ -26136,26 +26178,26 @@ const createStatisticsTemplate = (data) => {
     `<section class="statistic">
       <p class="statistic__rank">
         Your rank
-        <img class="statistic__img" src="images/${_mock_profile_js__WEBPACK_IMPORTED_MODULE_5__["profileMock"].avatar}" alt="Avatar" width="35" height="35">
-        <span class="statistic__rank-label">${_mock_profile_js__WEBPACK_IMPORTED_MODULE_5__["profileMock"].rating}</span>
+        <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
+        <span class="statistic__rank-label">${profileRating}</span>
       </p>
 
       <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters">
         <p class="statistic__filters-description">Show stats:</p>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-all-time" value="all-time" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].ALL_TIME ? `checked` : ``}>
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-all-time" value="all-time" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].ALL_TIME ? `checked` : ``}>
         <label for="statistic-all-time" class="statistic__filters-label">All time</label>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-today" value="today" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].TODAY ? `checked` : ``}>
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-today" value="today" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].TODAY ? `checked` : ``}>
         <label for="statistic-today" class="statistic__filters-label">Today</label>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-week" value="week" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].WEEK ? `checked` : ``}>
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-week" value="week" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].WEEK ? `checked` : ``}>
         <label for="statistic-week" class="statistic__filters-label">Week</label>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-month" value="month" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].MONTH ? `checked` : ``}>
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-month" value="month" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].MONTH ? `checked` : ``}>
         <label for="statistic-month" class="statistic__filters-label">Month</label>
 
-        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-year" value="year" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].YEAR ? `checked` : ``}>
+        <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-year" value="year" ${data.currentPeriod === _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].YEAR ? `checked` : ``}>
         <label for="statistic-year" class="statistic__filters-label">Year</label>
       </form>
 
@@ -26190,7 +26232,7 @@ class Statistics extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
     this._data = {
       watchedFilms: this._films.filter((film) => film.userDetails.alreadyWatched),
-      currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].ALL_TIME
+      currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].ALL_TIME
     };
 
     this._genresChart = null;
@@ -26205,11 +26247,11 @@ class Statistics extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
   }
 
   _getTemplate() {
-    return createStatisticsTemplate(this._data);
+    return createStatisticsTemplate(this._data, this._films);
   }
 
   _removeElement() {
-    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_7__["remove"])(this);
+    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["remove"])(this);
     super.removeElement();
 
     if (this._genresChart !== null) {
@@ -26227,34 +26269,34 @@ class Statistics extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
       let update;
       switch (evt.target.value) {
-        case _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].ALL_TIME:
+        case _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].ALL_TIME:
           update = {
             watchedFilms: this._films.filter((film) => film.userDetails.alreadyWatched),
-            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].ALL_TIME
+            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].ALL_TIME
           };
           break;
-        case _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].TODAY:
+        case _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].TODAY:
           update = {
             watchedFilms: this._films.filter((film) => film.userDetails.alreadyWatched && moment__WEBPACK_IMPORTED_MODULE_1___default()(film.userDetails.watchingDate).isSame(new Date(), `day`)),
-            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].TODAY
+            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].TODAY
           };
           break;
-        case _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].WEEK:
+        case _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].WEEK:
           update = {
             watchedFilms: this._films.filter((film) => film.userDetails.alreadyWatched && moment__WEBPACK_IMPORTED_MODULE_1___default()(film.userDetails.watchingDate).isBetween(dateAWeekAgo, new Date())),
-            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].WEEK
+            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].WEEK
           };
           break;
-        case _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].MONTH:
+        case _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].MONTH:
           update = {
             watchedFilms: this._films.filter((film) => film.userDetails.alreadyWatched && moment__WEBPACK_IMPORTED_MODULE_1___default()(film.userDetails.watchingDate).isBetween(dateAMonthAgo, new Date())),
-            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].MONTH
+            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].MONTH
           };
           break;
-        case _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].YEAR:
+        case _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].YEAR:
           update = {
             watchedFilms: this._films.filter((film) => film.userDetails.alreadyWatched && moment__WEBPACK_IMPORTED_MODULE_1___default()(film.userDetails.watchingDate).isBetween(dateAYearAgo, new Date())),
-            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_6__["StatisticsPeriod"].YEAR
+            currentPeriod: _variables_js__WEBPACK_IMPORTED_MODULE_5__["StatisticsPeriod"].YEAR
           };
           break;
       }
@@ -26288,7 +26330,7 @@ class Statistics extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
   _replaceStatistics() {
     this._removeElement();
-    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_7__["render"])(this._container, this);
+    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["render"])(this._container, this);
     this._restoreHandlers();
   }
 }

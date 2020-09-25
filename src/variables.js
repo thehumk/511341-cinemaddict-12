@@ -2,6 +2,8 @@ export const AUTHORIZATION = `Basic er883jdzbdw212weragadfg`;
 export const END_POINT = `https://12.ecmascript.pages.academy/cinemaddict`;
 export const SHAKE_ANIMATION_TIMEOUT = 600;
 
+export const SHORT_DESCRIPTION = 140;
+
 export const KeyCode = {
   ESC: 27,
   ENTER: 13
@@ -12,6 +14,12 @@ export const QuantityFilms = {
   FILMS: 5,
   EXTRA_FILMS: 2,
   EXTRA_CATEGORIES: 2,
+};
+
+export const ProfileRanks = {
+  NOVICE: 1,
+  FAN: 11,
+  MOVIE_BUFF: 21,
 };
 
 export const SortType = {

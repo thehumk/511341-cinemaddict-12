@@ -20,10 +20,7 @@ export default class MovieList {
     this._isLoading = true;
 
     this._quantityRenderFilms = QuantityFilms.FILMS;
-    this._quantityRenderExtraFilms = QuantityFilms.EXTRA_FILMS;
-    this._quantityExtraCategories = QuantityFilms.EXTRA_CATEGORIES;
     this._showingFilmsCount = this._quantityRenderFilms;
-    this._quantityAllFilms = 0;
 
     this._filmsContainerComponent = new FilmsContainerView();
     this._noDataComponent = new NoDataView();
@@ -34,7 +31,6 @@ export default class MovieList {
 
     this._currentSortType = SortType.DEFAULT;
     this._moviesCards = {};
-    this._commentsFilms = {};
 
     this._renderFilmsList = this._renderFilmsList.bind(this);
     this._renderFilm = this._renderFilm.bind(this);
@@ -59,8 +55,6 @@ export default class MovieList {
     render(this._container, this._filmsContainerComponent);
 
     this._filmsList = this._container.querySelector(`.films-list`);
-    this._filmsListExtraRated = this._container.querySelectorAll(`.films-list--extra-rated`);
-    this._filmsListExtraComments = this._container.querySelectorAll(`.films-list--extra-comments`);
   }
 
   _renderShowMoreButton() {
@@ -138,7 +132,9 @@ export default class MovieList {
   }
 
   _clearFilmsDetails() {
-    Object.values(this._moviesCards).forEach((elem) => elem.destroyFilmDetails());
+    Object.values(this._moviesCards).forEach((elem) => {
+      elem.destroyFilmDetails();
+    });
   }
 
   _handleViewAction(updateType, updateFilm) {

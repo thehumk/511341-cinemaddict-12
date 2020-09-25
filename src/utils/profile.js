@@ -1,15 +1,15 @@
 import {filter} from './filter.js';
-import {FilterType} from '../variables.js';
+import {FilterType, ProfileRanks} from '../variables.js';
 
 export const getProfileRating = (films) => {
-  const watchedFilmsCount = filter[FilterType.WATCHLIST](films).length;
+  const watchedFilmsCount = filter[FilterType.HISTORY](films).length;
 
   switch (true) {
-    case (watchedFilmsCount >= 1 && watchedFilmsCount <= 10):
+    case (watchedFilmsCount >= ProfileRanks.NOVICE && watchedFilmsCount < ProfileRanks.FAN):
       return `novice`;
-    case (watchedFilmsCount >= 11 && watchedFilmsCount <= 20):
+    case (watchedFilmsCount >= ProfileRanks.FAN && watchedFilmsCount < ProfileRanks.MOVIE_BUFF):
       return `fan`;
-    case (watchedFilmsCount >= 21):
+    case (watchedFilmsCount >= ProfileRanks.MOVIE_BUFF):
       return `movie buff`;
     default:
       return ``;

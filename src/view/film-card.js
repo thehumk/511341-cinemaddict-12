@@ -1,8 +1,9 @@
 import Abstract from './abstract.js';
 import {setFormatTimeDuration, setFormatReleaseDate} from '../utils/util.js';
+import {SHORT_DESCRIPTION} from '../variables.js';
 
 const createFilmCardTemplate = (film) => {
-  const shortDescription = film.filmInfo.description.length > 140 ? film.filmInfo.description.slice(0, 140) + `...` : film.filmInfo.description;
+  const shortDescription = film.filmInfo.description.length > SHORT_DESCRIPTION ? film.filmInfo.description.slice(0, SHORT_DESCRIPTION) + `...` : film.filmInfo.description;
 
   return (
     `<article class="film-card">

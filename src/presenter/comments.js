@@ -79,16 +79,11 @@ export default class Comment {
     return evt.target.value;
   }
 
-  getCommentsListView() {
-    return this._commentsListView;
-  }
-
   _getSelectedCommentEmoji() {
     if (this._selectedCommentEmoji === null) {
       return ``;
-    } else {
-      return this._selectedCommentEmoji.replace(`emoji-`, ``);
     }
+    return this._selectedCommentEmoji.replace(`emoji-`, ``);
   }
 
   _getNewComment(evt) {
